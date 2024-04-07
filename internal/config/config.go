@@ -74,7 +74,7 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 	}
 
 	schedulerConfig := SchedulerConfig{
-		SchedulerBitCoinFetch: getStringOrPanic("SCHEDULER_BITCOINT_FETCH"),
+		SchedulerBitCoinFetch: getStringOrPanic("SCHEDULER_BITCOIN_FETCH"),
 	}
 
 	APIURLs := APIURLsConfig{
