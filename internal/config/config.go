@@ -13,9 +13,8 @@ type (
 		ServerConfig
 		WorkerConfig
 		SchedulerConfig
-		APIURLsConfig
-		APIKeysConfig
-		CredentialsConfig
+		CoinGeckoConfig
+		WhatsAppConfig
 	}
 
 	ServerConfig struct {
@@ -34,16 +33,13 @@ type (
 		SchedulerBitCoinFetch string
 	}
 
-	APIURLsConfig struct {
-		APIURLCoinGecko string
+	CoinGeckoConfig struct {
+		CoinGeckoAPIURL string
 	}
 
-	APIKeysConfig struct {
-		APIKeyWhatsApp string
-	}
-
-	CredentialsConfig struct {
-		CredWhatsAppPhoneNumberId string
+	WhatsAppConfig struct {
+		WhatsAppAPIKey        string
+		WhatsAppPhoneNumberId string
 	}
 )
 
@@ -77,26 +73,22 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 		SchedulerBitCoinFetch: getStringOrPanic("SCHEDULER_BITCOIN_FETCH"),
 	}
 
-	APIURLs := APIURLsConfig{
-		APIURLCoinGecko: getStringOrPanic("API_URL_COIN_GECKO"),
+	coinGeckoConfig := CoinGeckoConfig{
+		CoinGeckoAPIURL: getStringOrPanic("COIN_GECKO_API_URL"),
 	}
 
-	APIKeys := APIKeysConfig{
-		APIKeyWhatsApp: getStringOrPanic("API_KEY_WHATSAPP"),
-	}
-
-	credsConfig := CredentialsConfig{
-		CredWhatsAppPhoneNumberId: getStringOrPanic("CRED_WHATSAPP_PHONENUMBER_ID"),
+	whatsAppConfig := WhatsAppConfig{
+		WhatsAppAPIKey:        getStringOrPanic("WHATSAPP_API_KEY"),
+		WhatsAppPhoneNumberId: getStringOrPanic("WHATSAPP_PHONENUMBER_ID"),
 	}
 
 	return &Config{
-		ENV:               env,
-		ServerConfig:      serverConfig,
-		WorkerConfig:      workerConfig,
-		SchedulerConfig:   schedulerConfig,
-		APIURLsConfig:     APIURLs,
-		APIKeysConfig:     APIKeys,
-		CredentialsConfig: credsConfig,
+		ENV:             env,
+		ServerConfig:    serverConfig,
+		WorkerConfig:    workerConfig,
+		SchedulerConfig: schedulerConfig,
+		CoinGeckoConfig: coinGeckoConfig,
+		WhatsAppConfig:  whatsAppConfig,
 	}, nil
 }
 
