@@ -6,6 +6,7 @@ require github.com/spf13/viper v1.18.2
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	golang.org/x/tools v0.13.0 // indirect
 )
 
@@ -20,6 +21,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
+	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect

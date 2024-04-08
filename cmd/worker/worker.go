@@ -8,7 +8,7 @@ import (
 )
 
 func Start(cfg *config.Config) {
-	fmt.Println("Starting crypto watcher worker...")
+	fmt.Println("Starting crypto-watcher worker...")
 	httpServer := http.Server{}
 	app.RunWorker(&httpServer, cfg)
 }
