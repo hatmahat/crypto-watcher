@@ -58,7 +58,7 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 	env := getStringConfigOrDefault("ENV", "staging")
 
 	serverConfig := ServerConfig{
-		APIPort:       getIntConfigOrDefault("SERVER_API_PORT", 8080),
+		APIPort:       getIntConfigOrDefault("SERVER_API_PORT", 9000),
 		GlobalTimeout: getIntConfigOrDefault("SERVER_GLOBAL_TIMEOUT", 30000),
 		APILogLevel:   getStringConfigOrDefault("SERVER_API_LOG_LEVEL", "info"),
 	}
