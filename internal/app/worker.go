@@ -15,7 +15,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func RunWorker(cfg *config.Config) {
+func RunWorker(httpServer *http.Server, cfg *config.Config) {
 	ctx := context.Background()
 	httpClient := http.Client{
 		Timeout: time.Duration(cfg.WorkerConfig.GlobalTimeout) * time.Millisecond,
@@ -26,16 +26,14 @@ func RunWorker(cfg *config.Config) {
 	defer worker.Cron.Stop()
 
 	router := mux.NewRouter()
-	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", cfg.WorkerConfig.APIPort),
-		Handler: router,
-	}
+	httpServer.Addr = fmt.Sprintf(":%d", cfg.WorkerConfig.APIPort)
+	httpServer.Handler = router
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		err := server.ListenAndServe()
+		err := httpServer.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
@@ -50,7 +48,7 @@ func RunWorker(cfg *config.Config) {
 		cancel()
 	}()
 
-	err := server.Shutdown(ctx)
+	err := httpServer.Shutdown(ctx)
 	if err != nil {
 		log.Fatalf("Server Shutdown Failed:%+v", err)
 	}

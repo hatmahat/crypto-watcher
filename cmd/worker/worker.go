@@ -4,9 +4,11 @@ import (
 	"crypto-watcher-backend/internal/app"
 	"crypto-watcher-backend/internal/config"
 	"fmt"
+	"net/http"
 )
 
 func Start(cfg *config.Config) {
 	fmt.Println("Starting crypto-watcher worker...")
-	app.RunWorker(cfg)
+	httpServer := http.Server{}
+	app.RunWorker(&httpServer, cfg)
 }
