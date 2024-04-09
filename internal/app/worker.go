@@ -4,15 +4,17 @@ import (
 	"context"
 	"crypto-watcher-backend/internal/app/init_module"
 	"crypto-watcher-backend/internal/config"
+	"crypto-watcher-backend/pkg/logger"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/labstack/echo"
 )
 
 func RunWorker(httpServer *http.Server, cfg *config.Config) {
@@ -25,9 +27,11 @@ func RunWorker(httpServer *http.Server, cfg *config.Config) {
 	worker.Cron.Start()
 	defer worker.Cron.Stop()
 
-	router := mux.NewRouter()
+	echoServer := echo.New()
+	echoServer.Use(logger.MiddlewareLogging)
+
 	httpServer.Addr = fmt.Sprintf(":%d", cfg.WorkerConfig.APIPort)
-	httpServer.Handler = router
+	httpServer.Handler = echoServer
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -38,10 +42,10 @@ func RunWorker(httpServer *http.Server, cfg *config.Config) {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
-	log.Print("Server Started")
+	logger.LogWithCustomTime("Server Started")
 
 	<-done
-	log.Print("Worker Stopped")
+	logger.LogWithCustomTime("Worker Stopped")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer func() {
@@ -52,5 +56,5 @@ func RunWorker(httpServer *http.Server, cfg *config.Config) {
 	if err != nil {
 		log.Fatalf("Server Shutdown Failed:%+v", err)
 	}
-	log.Print("Worker Exited")
+	logger.LogWithCustomTime("Worker Exited")
 }
