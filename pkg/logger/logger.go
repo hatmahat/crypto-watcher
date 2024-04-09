@@ -11,8 +11,8 @@ func MiddlewareLogging(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		start := time.Now()
 		err := next(c)
-		makeLogEntry(c, start, err).Info("incoming request")
-		return next(c)
+		makeLogEntry(c, start, err, "Incoming Request")
+		return err
 	}
 }
 
@@ -22,16 +22,17 @@ func LogWithCustomTime(message string) {
 	}).Info(message)
 }
 
-func makeLogEntry(c echo.Context, start time.Time, err error) *log.Entry {
-	entry := log.WithFields(log.Fields{
+func makeLogEntry(c echo.Context, start time.Time, err error, message string) {
+	fields := log.Fields{
 		"method":  c.Request().Method,
 		"uri":     c.Request().URL.String(),
 		"ip":      c.Request().RemoteAddr,
 		"latency": time.Since(start).String(),
-	})
+	}
 
 	if err != nil {
-		entry = entry.WithField("error", err.Error())
+		log.WithFields(fields).WithField("error", err.Error()).Warn(message)
+		return
 	}
-	return entry
+	log.WithFields(fields).Info(message)
 }
