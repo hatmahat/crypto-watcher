@@ -1,7 +1,7 @@
 package http_const
 
 const (
-	// Header
+	// Headers
 	ContentType   = "Content-Type"
 	Authorization = "Authorization"
 
