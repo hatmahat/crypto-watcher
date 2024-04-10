@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/robfig/cron/v3"
+	"github.com/sirupsen/logrus"
 )
 
 type (
@@ -59,7 +60,11 @@ func (c *WatcherWorker) registerJobs() {
 		for _, cronJob := range c.cronJob[i].GenerateWorkerParameters() {
 			_, err := c.cronPool.AddFunc(cronJob.TimeSpec, c.GenerateHandler(cronJob.Handler))
 			if err != nil {
-				// TODO: Add logger here
+				logrus.WithFields(logrus.Fields{
+					"jobName":  cronJob.Name,
+					"timeSpec": cronJob.TimeSpec,
+					"err":      err.Error(),
+				}).Errorf("Error Registering Job: %s", cronJob.Name)
 			}
 		}
 	}

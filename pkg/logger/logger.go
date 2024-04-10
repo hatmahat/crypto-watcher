@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 func MiddlewareLogging(next echo.HandlerFunc) echo.HandlerFunc {
@@ -17,13 +17,13 @@ func MiddlewareLogging(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 func LogWithCustomTime(message string) {
-	log.WithFields(log.Fields{
+	logrus.WithFields(logrus.Fields{
 		"at": time.Now().Format("2006-01-02 15:04:05"),
 	}).Info(message)
 }
 
 func makeLogEntry(c echo.Context, start time.Time, err error, message string) {
-	fields := log.Fields{
+	fields := logrus.Fields{
 		"method":  c.Request().Method,
 		"uri":     c.Request().URL.String(),
 		"ip":      c.Request().RemoteAddr,
@@ -31,8 +31,8 @@ func makeLogEntry(c echo.Context, start time.Time, err error, message string) {
 	}
 
 	if err != nil {
-		log.WithFields(fields).WithField("error", err.Error()).Warn(message)
+		logrus.WithFields(fields).WithField("error", err.Error()).Warn(message)
 		return
 	}
-	log.WithFields(fields).Info(message)
+	logrus.WithFields(fields).Info(message)
 }

@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
 	"github.com/labstack/echo"
 )
@@ -39,7 +39,7 @@ func RunWorker(httpServer *http.Server, cfg *config.Config) {
 	go func() {
 		err := httpServer.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
+			logrus.Fatalf("listen: %s\n", err)
 		}
 	}()
 	logger.LogWithCustomTime("Server Started")
@@ -54,7 +54,7 @@ func RunWorker(httpServer *http.Server, cfg *config.Config) {
 
 	err := httpServer.Shutdown(ctx)
 	if err != nil {
-		log.Fatalf("Server Shutdown Failed:%+v", err)
+		logrus.Error(fmt.Sprintf("Server Shutdown Failed: %+v", err))
 	}
 	logger.LogWithCustomTime("Worker Exited")
 }
