@@ -38,6 +38,7 @@ type (
 	}
 
 	WhatsAppConfig struct {
+		WhatsAppHost          string
 		WhatsAppAPIKey        string
 		WhatsAppPhoneNumberId string
 	}
@@ -78,6 +79,7 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 	}
 
 	whatsAppConfig := WhatsAppConfig{
+		WhatsAppHost:          getStringOrPanic("WHATSAPP_HOST"),
 		WhatsAppAPIKey:        getStringOrPanic("WHATSAPP_API_KEY"),
 		WhatsAppPhoneNumberId: getStringOrPanic("WHATSAPP_PHONENUMBER_ID"),
 	}
