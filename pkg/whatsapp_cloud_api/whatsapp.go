@@ -89,7 +89,7 @@ func (wm *waMessaging) SendWaMessageByTemplate(ctx context.Context, phoneNumber,
 			"err":       err.Error(),
 			"resp_code": resp.StatusCode,
 			"resp":      resp,
-		}).Errorf("Error Calling WhatsApp Cloud API: %s", funcName)
+		}).Errorf("Error Calling API: %s", funcName)
 		return nil, err
 	}
 

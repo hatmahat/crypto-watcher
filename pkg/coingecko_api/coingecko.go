@@ -63,7 +63,7 @@ func (cg *coinGecko) GetCurrentPrice(ctx context.Context, queryParams map[string
 			"err":       err.Error(),
 			"resp_code": resp.StatusCode,
 			"resp":      resp,
-		}).Errorf("Error Calling Coin API: %s", funcName)
+		}).Errorf("Error Calling API: %s", funcName)
 		return nil, err
 	}
 
