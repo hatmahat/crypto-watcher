@@ -86,7 +86,7 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 	}
 
 	coinGeckoConfig := CoinGeckoConfig{
-		CoinGeckoAPIHost: getStringOrPanic("COIN_GECKO_HOST"),
+		CoinGeckoAPIHost: getStringOrPanic("COIN_GECKO_API_HOST"),
 	}
 
 	whatsAppConfig := WhatsAppConfig{
