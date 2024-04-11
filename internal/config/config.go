@@ -13,6 +13,7 @@ type (
 		ServerConfig
 		WorkerConfig
 		SchedulerConfig
+		CoinConfig
 		CoinGeckoConfig
 		WhatsAppConfig
 	}
@@ -33,12 +34,17 @@ type (
 		SchedulerBitCoinFetch string
 	}
 
+	CoinConfig struct {
+		CoinAPIHost string
+		CoinAPIKey  string
+	}
+
 	CoinGeckoConfig struct {
-		CoinGeckoAPIURL string
+		CoinGeckoAPIHost string
 	}
 
 	WhatsAppConfig struct {
-		WhatsAppHost          string
+		WhatsAppApiHost       string
 		WhatsAppAPIKey        string
 		WhatsAppPhoneNumberId string
 	}
@@ -74,12 +80,17 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 		SchedulerBitCoinFetch: getStringOrPanic("SCHEDULER_BITCOIN_FETCH"),
 	}
 
+	coinConfig := CoinConfig{
+		CoinAPIHost: getStringOrPanic("COIN_API_HOST"),
+		CoinAPIKey:  getStringOrPanic("COIN_API_KEY"),
+	}
+
 	coinGeckoConfig := CoinGeckoConfig{
-		CoinGeckoAPIURL: getStringOrPanic("COIN_GECKO_API_URL"),
+		CoinGeckoAPIHost: getStringOrPanic("COIN_GECKO_API_HOST"),
 	}
 
 	whatsAppConfig := WhatsAppConfig{
-		WhatsAppHost:          getStringOrPanic("WHATSAPP_HOST"),
+		WhatsAppApiHost:       getStringOrPanic("WHATSAPP_API_HOST"),
 		WhatsAppAPIKey:        getStringOrPanic("WHATSAPP_API_KEY"),
 		WhatsAppPhoneNumberId: getStringOrPanic("WHATSAPP_PHONENUMBER_ID"),
 	}
@@ -89,6 +100,7 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 		ServerConfig:    serverConfig,
 		WorkerConfig:    workerConfig,
 		SchedulerConfig: schedulerConfig,
+		CoinConfig:      coinConfig,
 		CoinGeckoConfig: coinGeckoConfig,
 		WhatsAppConfig:  whatsAppConfig,
 	}, nil
