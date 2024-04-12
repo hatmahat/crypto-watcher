@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto-watcher-backend/internal/app/worker"
 	"crypto-watcher-backend/internal/config"
+	"crypto-watcher-backend/internal/service"
 	"net/http"
 
 	"github.com/google/wire"
@@ -21,6 +22,17 @@ var (
 		wire.FieldsOf(new(*config.Config), "WhatsAppConfig"),
 	)
 
+	dependencySet = wire.NewSet(
+		NewCoin,
+		NewCoinGecko,
+		NewWaMessaging,
+	)
+
+	serviceSet = wire.NewSet(
+		service.NewCryptoService,
+		wire.Struct(new(service.CryptoServiceParam), "*"),
+	)
+
 	appSet = wire.NewSet(
 		wire.Struct(new(worker.WatcherWorkerParam), "*"),
 		worker.NewWatcherWorker,
@@ -29,8 +41,10 @@ var (
 	)
 
 	allSet = wire.NewSet(
-		appSet,
 		cfgSet,
+		dependencySet,
+		serviceSet,
+		appSet,
 	)
 )
 

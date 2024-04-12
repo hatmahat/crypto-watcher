@@ -41,7 +41,7 @@ func (cg *coinGecko) GetCurrentPrice(ctx context.Context, queryParams map[string
 		return nil, err
 	}
 
-	u.Path = getSimplePricePath
+	u.Path += getSimplePricePath
 
 	q := u.Query()
 	for key, value := range queryParams {
