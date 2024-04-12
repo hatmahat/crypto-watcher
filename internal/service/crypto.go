@@ -57,7 +57,7 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 
 	usdPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD), ',')
 	idrPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD*16131), '.')
-	parameters := []string{ // TODO: make parameters dynamic
+	parameters := []string{ // TODO: make parameters dynamic and also add currency conversion to IDR
 		"increased",
 		"3.5",
 		usdPrice,
