@@ -25,6 +25,7 @@ func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client)
 		CoinGecko:   coinGecko,
 		Coin:        coin,
 		WaMessaging: waMessaging,
+		Cfg:         cfg,
 	}
 	cryptoService := service.NewCryptoService(cryptoServiceParam)
 	watcherWorkerParam := worker.WatcherWorkerParam{

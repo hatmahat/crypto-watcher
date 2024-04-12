@@ -2,10 +2,11 @@ package service
 
 import (
 	"context"
+	"crypto-watcher-backend/internal/config"
 	"crypto-watcher-backend/pkg/coin_api"
 	"crypto-watcher-backend/pkg/coingecko_api"
+	"crypto-watcher-backend/pkg/format"
 	"crypto-watcher-backend/pkg/whatsapp_cloud_api"
-	"fmt"
 
 	"github.com/sirupsen/logrus"
 )
@@ -19,12 +20,14 @@ type (
 		CoinGecko   coingecko_api.CoinGecko
 		Coin        coin_api.Coin
 		WaMessaging whatsapp_cloud_api.WaMessaging
+		Cfg         *config.Config
 	}
 
 	cryptoService struct {
 		coinGecko   coingecko_api.CoinGecko
 		coin        coin_api.Coin
 		waMessaging whatsapp_cloud_api.WaMessaging
+		cfg         *config.Config
 	}
 )
 
@@ -33,6 +36,7 @@ func NewCryptoService(param CryptoServiceParam) CryptoService {
 		coinGecko:   param.CoinGecko,
 		coin:        param.Coin,
 		waMessaging: param.WaMessaging,
+		cfg:         param.Cfg,
 	}
 }
 
@@ -51,7 +55,25 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 		return err
 	}
 
-	fmt.Println("PRICE", bitcoinPrice.Bitcoin.USD)
+	usdPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD), ',')
+	idrPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD*16131), '.')
+	parameters := []string{ // TODO: make parameters dynamic
+		"increased",
+		"3.5",
+		usdPrice,
+		idrPrice,
+		"up",
+		"1,400",
+		"yesterday",
+		"20.000.000",
+		format.GetCurrentTimeInFullFormat()}
+	_, err = cs.waMessaging.SendWaMessageByTemplate(ctx, cs.cfg.WhatsAppTestPhoneNumber, whatsapp_cloud_api.BitcoinPriceAlert, parameters)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err.Error(),
+		}).Errorf("Error Sending WA Message: %s", funcName)
+		return err
+	}
 
 	return nil
 }

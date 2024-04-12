@@ -44,9 +44,10 @@ type (
 	}
 
 	WhatsAppConfig struct {
-		WhatsAppApiHost       string
-		WhatsAppAPIKey        string
-		WhatsAppPhoneNumberId string
+		WhatsAppApiHost         string
+		WhatsAppAPIKey          string
+		WhatsAppPhoneNumberId   string
+		WhatsAppTestPhoneNumber string
 	}
 )
 
@@ -62,18 +63,18 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 		log.Println("Falling back to environment variables only.")
 	}
 
-	env := getStringConfigOrDefault("ENV", "staging")
+	env := getStringOrDefault("ENV", "staging")
 
 	serverConfig := ServerConfig{
-		APIPort:       getIntConfigOrDefault("SERVER_API_PORT", 9000),
-		GlobalTimeout: getIntConfigOrDefault("SERVER_GLOBAL_TIMEOUT", 30000),
-		APILogLevel:   getStringConfigOrDefault("SERVER_API_LOG_LEVEL", "info"),
+		APIPort:       getIntOrDefault("SERVER_API_PORT", 9000),
+		GlobalTimeout: getIntOrDefault("SERVER_GLOBAL_TIMEOUT", 30000),
+		APILogLevel:   getStringOrDefault("SERVER_API_LOG_LEVEL", "info"),
 	}
 
 	workerConfig := WorkerConfig{
-		APIPort:       getIntConfigOrDefault("WORKER_API_PORT", 8081),
-		GlobalTimeout: getIntConfigOrDefault("WORKER_GLOBAL_TIMEOUT", 30000),
-		APILogLevel:   getStringConfigOrDefault("WORKER_API_LOG_LEVEL", "info"),
+		APIPort:       getIntOrDefault("WORKER_API_PORT", 8081),
+		GlobalTimeout: getIntOrDefault("WORKER_GLOBAL_TIMEOUT", 30000),
+		APILogLevel:   getStringOrDefault("WORKER_API_LOG_LEVEL", "info"),
 	}
 
 	schedulerConfig := SchedulerConfig{
@@ -90,9 +91,10 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 	}
 
 	whatsAppConfig := WhatsAppConfig{
-		WhatsAppApiHost:       getStringOrPanic("WHATSAPP_API_HOST"),
-		WhatsAppAPIKey:        getStringOrPanic("WHATSAPP_API_KEY"),
-		WhatsAppPhoneNumberId: getStringOrPanic("WHATSAPP_PHONENUMBER_ID"),
+		WhatsAppApiHost:         getStringOrPanic("WHATSAPP_API_HOST"),
+		WhatsAppAPIKey:          getStringOrPanic("WHATSAPP_API_KEY"),
+		WhatsAppPhoneNumberId:   getStringOrPanic("WHATSAPP_PHONENUMBER_ID"),
+		WhatsAppTestPhoneNumber: getStringOrDefault("WHATSAPP_TEST_PHONENUMBER", ""),
 	}
 
 	return &Config{
@@ -106,12 +108,12 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 	}, nil
 }
 
-func getIntConfigOrDefault(key string, defaultValue int) int {
+func getIntOrDefault(key string, defaultValue int) int {
 	viper.SetDefault(key, defaultValue)
 	return viper.GetInt(key)
 }
 
-func getStringConfigOrDefault(key, defaultValue string) string {
+func getStringOrDefault(key, defaultValue string) string {
 	viper.SetDefault(key, defaultValue)
 	return viper.GetString(key)
 }

@@ -48,11 +48,16 @@ func (wm *waMessaging) SendWaMessageByTemplate(ctx context.Context, phoneNumber,
 			Language: Language{
 				Code: enUsConst,
 			},
+			Components: []Component{
+				{
+					Type: bodyConst,
+				},
+			},
 		},
 	}
 
+	componentParameters := make([]Parameter, 0)
 	if len(parameters) != 0 {
-		componentParameters := request.Template.Components[0].Parameters
 		for _, param := range parameters {
 			newParam := Parameter{
 				Type: textConst,
@@ -61,6 +66,8 @@ func (wm *waMessaging) SendWaMessageByTemplate(ctx context.Context, phoneNumber,
 			componentParameters = append(componentParameters, newParam)
 		}
 	}
+
+	request.Components[0].Parameters = componentParameters
 
 	reqBody, err := json.Marshal(request)
 	if err != nil {
@@ -101,6 +108,14 @@ func (wm *waMessaging) SendWaMessageByTemplate(ctx context.Context, phoneNumber,
 			"resp": resp,
 		}).Errorf("Failed to Read Response: %s", funcName)
 		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		logrus.WithFields(logrus.Fields{
+			"resp_code": resp.StatusCode,
+			"resp_body": string(responseBody),
+		}).Errorf("Error Calling API: %s", funcName)
+		return nil, fmt.Errorf("server response status: %d", resp.StatusCode)
 	}
 
 	var metaMessageResponse MetaMessageResponse
