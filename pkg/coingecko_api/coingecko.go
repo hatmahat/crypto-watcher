@@ -3,6 +3,7 @@ package coingecko_api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -75,6 +76,14 @@ func (cg *coinGecko) GetCurrentPrice(ctx context.Context, queryParams map[string
 			"resp": resp,
 		}).Errorf("Failed to Read Response: %s", funcName)
 		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		logrus.WithFields(logrus.Fields{
+			"resp_code": resp.StatusCode,
+			"resp_body": string(responseBody),
+		}).Errorf("Error Calling API: %s", funcName)
+		return nil, fmt.Errorf("server response status: %d", resp.StatusCode)
 	}
 
 	var coinGeckoPriceResponse CoinGeckoPriceResponse

@@ -67,6 +67,14 @@ func (c *coin) GetSpecificRate(ctx context.Context, assetIdBase, assetIdQuote st
 		return nil, err
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		logrus.WithFields(logrus.Fields{
+			"resp_code": resp.StatusCode,
+			"resp_body": string(responseBody),
+		}).Errorf("Error Calling API: %s", funcName)
+		return nil, fmt.Errorf("server response status: %d", resp.StatusCode)
+	}
+
 	var coinRateResponse CoinRateResponse
 	if err := json.Unmarshal(responseBody, &coinRateResponse); err != nil {
 		logrus.WithFields(logrus.Fields{

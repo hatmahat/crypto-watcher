@@ -18,5 +18,5 @@ const (
 	textConst = "text"
 
 	// Templates
-	BitcoinAlert = "bitcoin_alert"
+	BitcoinPriceAlert = "bitcoin_price_alert"
 )
