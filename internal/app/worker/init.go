@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"crypto-watcher-backend/internal/config"
+	"crypto-watcher-backend/internal/service"
 	"fmt"
 
 	"github.com/robfig/cron/v3"
@@ -17,7 +18,8 @@ type (
 	}
 
 	WatcherWorkerParam struct {
-		Config *config.Config
+		Config        *config.Config
+		CryptoService service.CryptoService
 	}
 
 	JobParameter struct {
@@ -44,7 +46,10 @@ func NewWatcherWorker(param WatcherWorkerParam) *WatcherWorker {
 	}
 
 	c.cronJob = []worker{
-		// TODO: Add new worker here
+		NewCryptoWorker(CryptoWorkerParam{
+			WatcherWorker: &c,
+			CryptoService: param.CryptoService,
+		}),
 	}
 
 	c.registerJobs()
