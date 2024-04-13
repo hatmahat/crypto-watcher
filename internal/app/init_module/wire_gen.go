@@ -20,10 +20,12 @@ import (
 func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client) *WorkerWrapper {
 	coinGecko := NewCoinGecko(cfg)
 	coin := NewCoin(cfg)
+	currency := NewCurrency(cfg)
 	waMessaging := NewWaMessaging(cfg)
 	cryptoServiceParam := service.CryptoServiceParam{
 		CoinGecko:   coinGecko,
 		Coin:        coin,
+		Currency:    currency,
 		WaMessaging: waMessaging,
 		Cfg:         cfg,
 	}
@@ -45,6 +47,7 @@ var (
 	dependencySet = wire.NewSet(
 		NewCoin,
 		NewCoinGecko,
+		NewCurrency,
 		NewWaMessaging,
 	)
 
