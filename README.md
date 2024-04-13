@@ -2,7 +2,7 @@
 
 ### Goals
 - Monitor Bitcoin prices
-- Send notification via WA or Telegram every ups or downs of Bitcoin
+- Send notification via WA or Telegram every extreme ups and downs of Bitcoin
 
 ### Database Entity Relationship Diagram  
 
