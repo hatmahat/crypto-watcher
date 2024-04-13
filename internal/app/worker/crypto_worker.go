@@ -41,11 +41,11 @@ func (cw *CryptoWorker) GenerateWorkerParameters() []JobParameter {
 
 func (cw *CryptoWorker) BitcoinPriceWatcher(ctx context.Context) {
 	const funcName = "[internal][app][worker]BitcoinPriceWatcher"
-	logger.LogWithCustomTime(fmt.Sprintf("Running: %s", funcName))
+	logger.LogWithCustomTime(fmt.Sprintf("%s: Running", funcName))
 	err := cw.cryptoService.BitcoinPriceWatcher(ctx)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
-		}).Errorf("Error: %s", funcName)
+		}).Errorf("%s: Error", funcName)
 	}
 }
