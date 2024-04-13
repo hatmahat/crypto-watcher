@@ -36,7 +36,7 @@ func DoRequest(fn Doer, req *http.Request, funcName string) ([]byte, error) {
 			"resp_code": resp.StatusCode,
 			"resp_body": string(responseBody),
 		}).Errorf("%s: Non-OK HTTP status", funcName)
-		return nil, fmt.Errorf("server response status: %d", resp.StatusCode)
+		return responseBody, fmt.Errorf("server response status: %d", resp.StatusCode)
 	}
 
 	return responseBody, nil
