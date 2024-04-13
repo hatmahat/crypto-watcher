@@ -15,6 +15,7 @@ type (
 		SchedulerConfig
 		CoinConfig
 		CoinGeckoConfig
+		CurrencyConfig
 		WhatsAppConfig
 	}
 
@@ -41,6 +42,11 @@ type (
 
 	CoinGeckoConfig struct {
 		CoinGeckoAPIHost string
+	}
+
+	CurrencyConfig struct {
+		CurrencyAPIHost string
+		CurrencyAPIKey  string
 	}
 
 	WhatsAppConfig struct {
@@ -97,6 +103,11 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 		WhatsAppTestPhoneNumber: getStringOrDefault("WHATSAPP_TEST_PHONENUMBER", ""),
 	}
 
+	currencyConfig := CurrencyConfig{
+		CurrencyAPIHost: getStringOrPanic("CURRENCY_API_HOST"),
+		CurrencyAPIKey:  getStringOrPanic("CURRENCY_API_KEY"),
+	}
+
 	return &Config{
 		ENV:             env,
 		ServerConfig:    serverConfig,
@@ -105,6 +116,7 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 		CoinConfig:      coinConfig,
 		CoinGeckoConfig: coinGeckoConfig,
 		WhatsAppConfig:  whatsAppConfig,
+		CurrencyConfig:  currencyConfig,
 	}, nil
 }
 

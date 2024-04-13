@@ -25,6 +25,7 @@ var (
 	dependencySet = wire.NewSet(
 		NewCoin,
 		NewCoinGecko,
+		NewCurrency,
 		NewWaMessaging,
 	)
 
