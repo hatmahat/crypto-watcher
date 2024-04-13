@@ -48,11 +48,11 @@ func NewCryptoService(param CryptoServiceParam) CryptoService {
 func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 	const funcName = "[internal][service]BitcoinPriceWatcher"
 
-	bitcoinParams := map[string]string{
+	coinGeckoParams := map[string]string{
 		coingecko_api.Ids:          coingecko_api.Bitcoin,
 		coingecko_api.VsCurrencies: coingecko_api.Usd,
 	}
-	bitcoinPrice, err := cs.coinGecko.GetCurrentPrice(ctx, bitcoinParams)
+	bitcoinPrice, err := cs.coinGecko.GetCurrentPrice(ctx, coinGeckoParams)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
@@ -60,10 +60,7 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 		return err
 	}
 
-	currencyParams := map[string]string{
-		currency_api.Currencies: currency_api.IDR,
-	}
-	currency, err := cs.currency.GetCurrentCurrency(ctx, currencyParams)
+	usdToIdr, err := cs.convertCurrencyFromUsd(ctx, currency_api.IDR)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
@@ -71,10 +68,8 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 		return err
 	}
 
-	usdToIdr := int(currency.Data[currency_api.IDR].Value)
-
 	usdPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD), ',')
-	idrPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD*usdToIdr), '.')
+	idrPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD*(*usdToIdr)), '.')
 	fmt.Println("USD ", usdPrice)
 	fmt.Println("IDR", idrPrice)
 
@@ -97,4 +92,30 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (cs cryptoService) convertCurrencyFromUsd(ctx context.Context, currencyCode string) (*int, error) {
+	const funcName = "[internal][service]convertCurrencyFromUsd"
+
+	// TODO: need to fix, update currency api only once a day and store it on redis/db
+
+	currencyParams := map[string]string{
+		currency_api.Currencies: currencyCode,
+	}
+	currency, err := cs.currency.GetCurrentCurrency(ctx, currencyParams)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err.Error(),
+		}).Errorf("%s: Error Getting Currency Price from Currency API", funcName)
+		return nil, err
+	}
+
+	var usdToIdr int
+	if val, ok := currency.Data[currencyCode]; ok {
+		usdToIdr = int(val.Value)
+	} else {
+		return nil, fmt.Errorf("%s: Currency Code [%s] not Found", funcName, currencyCode)
+	}
+
+	return &usdToIdr, nil
 }
