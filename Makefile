@@ -10,3 +10,7 @@ run-worker:
 
 wire:
 	@cd internal/app/init_module && go run github.com/google/wire/cmd/wire
+
+start-db:
+	@echo "Starting the PostgreSQL container..."
+	@docker-compose up -d db

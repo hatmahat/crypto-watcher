@@ -1,4 +1,10 @@
-## Crypto Watcher / Omni Alert
+## Crypto Watcher | Omni Alert
 
-Goals:  
-- Send notification via WA or Push Notif every ups or downs
+### Goals
+- Monitor Bitcoin prices
+- Send notification via WA or Telegram every ups or downs of Bitcoin
+
+### Database Entity Relationship Diagram  
+
+![alt text](documentation/ERD.png)
+[DBDiagram](https://dbdiagram.io/d/661ab47403593b6b61e97fb8)
