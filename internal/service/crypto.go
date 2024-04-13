@@ -7,6 +7,7 @@ import (
 	"crypto-watcher-backend/pkg/coingecko_api"
 	"crypto-watcher-backend/pkg/format"
 	"crypto-watcher-backend/pkg/whatsapp_cloud_api"
+	"fmt"
 
 	"github.com/sirupsen/logrus"
 )
@@ -51,12 +52,14 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
-		}).Errorf("Error Getting Current Price from Coin Gecko: %s", funcName)
+		}).Errorf("%s: Error Getting Current Price from Coin Gecko", funcName)
 		return err
 	}
 
 	usdPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD), ',')
 	idrPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD*16131), '.')
+	fmt.Println("USD ", usdPrice)
+	fmt.Println("IDR", idrPrice)
 	parameters := []string{ // TODO: make parameters dynamic and also add currency conversion to IDR
 		"increased",
 		"3.5",
@@ -71,7 +74,7 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
-		}).Errorf("Error Sending WA Message: %s", funcName)
+		}).Errorf("%s: Error Sending WA Message", funcName)
 		return err
 	}
 

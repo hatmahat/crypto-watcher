@@ -16,4 +16,22 @@ type (
 		Id            string `json:"id"`
 		MessageStatus string `json:"message_status"`
 	}
+
+	MetaErrorResponse struct {
+		Error ErrorDetail `json:"error"`
+	}
+
+	ErrorDetail struct {
+		Message      string `json:"message"`
+		Type         string `json:"type"`
+		Code         int    `json:"code"`
+		ErrorData    `json:"error_data"`
+		ErrorSubcode int
+		FbtraceID    string `json:"fbtrace_id"`
+	}
+
+	ErrorData struct {
+		MessagingProduct string `json:"messaging_product"`
+		Details          string `json:"details"`
+	}
 )

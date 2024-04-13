@@ -2,9 +2,8 @@ package coingecko_api
 
 import (
 	"context"
+	"crypto-watcher-backend/pkg/http_request"
 	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 
@@ -38,7 +37,7 @@ func (cg *coinGecko) GetCurrentPrice(ctx context.Context, queryParams map[string
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
-		}).Errorf("Error Parsing URL: %s", funcName)
+		}).Errorf("%s: Error Parsing URL", funcName)
 		return nil, err
 	}
 
@@ -54,36 +53,14 @@ func (cg *coinGecko) GetCurrentPrice(ctx context.Context, queryParams map[string
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
-		}).Errorf("Error Making Request: %s", funcName)
+		}).Errorf("%s: Error Making Request", funcName)
 		return nil, err
 	}
 
-	resp, err := cg.httpClient.Do(req)
+	responseBody, err := http_request.DoRequest(cg.httpClient.Do, req, funcName)
 	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"err":       err.Error(),
-			"resp_code": resp.StatusCode,
-			"resp":      resp,
-		}).Errorf("Error Calling API: %s", funcName)
+		logrus.WithError(err).Errorf("%s: Error Do Request", funcName)
 		return nil, err
-	}
-
-	defer resp.Body.Close()
-	responseBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"err":  err.Error(),
-			"resp": resp,
-		}).Errorf("Failed to Read Response: %s", funcName)
-		return nil, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		logrus.WithFields(logrus.Fields{
-			"resp_code": resp.StatusCode,
-			"resp_body": string(responseBody),
-		}).Errorf("Error Calling API: %s", funcName)
-		return nil, fmt.Errorf("server response status: %d", resp.StatusCode)
 	}
 
 	var coinGeckoPriceResponse CoinGeckoPriceResponse
@@ -91,7 +68,7 @@ func (cg *coinGecko) GetCurrentPrice(ctx context.Context, queryParams map[string
 		logrus.WithFields(logrus.Fields{
 			"err":       err.Error(),
 			"resp_body": string(responseBody),
-		}).Errorf("Error Unmarshal: %s", funcName)
+		}).Errorf("%s: Error Unmarshal", funcName)
 		return nil, err
 	}
 
