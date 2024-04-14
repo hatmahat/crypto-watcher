@@ -2,51 +2,58 @@
 
 BEGIN;
 
-SELECT 
-    user_id, 
-    uuid, 
-    username, 
-    email, 
-    phone_number, 
-    created_at, 
-    updated_at 
-FROM 
+-- Select statement for users table
+SELECT
+    id,
+    uuid,
+    username,
+    email,
+    phone_number,
+    created_at,
+    updated_at
+FROM
     users;
 
-SELECT 
-    rate_id, 
-    currency_pair, 
-    rate, 
-    created_at 
-FROM 
+-- Select statement for currency_rates table
+SELECT
+    id,
+    currency_pair,
+    rate,
+    created_at
+FROM
     currency_rates;
 
-SELECT 
-    price_id, 
-    price_usd, 
-    created_at 
-FROM 
-    bitcoin_prices;
+-- Select statement for asset_prices table
+SELECT
+    id,
+    asset_type,
+    asset_code,
+    price_usd,
+    created_at
+FROM
+    asset_prices;
 
-SELECT 
-    preference_id, 
-    user_id, 
-    threshold_percentage, 
-    observation_period, 
-    created_at, 
-    updated_at 
-FROM 
+-- Select statement for user_preferences table
+SELECT
+    id,
+    user_id,
+    asset_type,
+    asset_code,
+    threshold_percentage,
+    observation_period,
+    created_at,
+    updated_at
+FROM
     user_preferences;
 
-SELECT 
-    notification_id, 
-    notification_type, 
-    user_id, 
-    price_id, 
-    parameters, 
-    created_at 
-FROM 
+-- Select statement for notifications table
+SELECT
+    id,
+    user_id,
+    preference_id,
+    message,
+    created_at
+FROM
     notifications;
-
 
 ROLLBACK;
