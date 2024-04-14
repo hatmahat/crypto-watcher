@@ -14,3 +14,12 @@ wire:
 start-db:
 	@echo "Starting the PostgreSQL container..."
 	@docker-compose up -d db
+
+deploy-db:
+	@cd migration && sqitch deploy 
+
+revert-db:
+	@cd migration && sqitch revert
+
+verify-db:
+	@cd migration && sqitch verify

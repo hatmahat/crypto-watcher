@@ -2,7 +2,6 @@
 
 BEGIN;
 
--- Select statement for users table
 SELECT
     id,
     uuid,
@@ -14,7 +13,6 @@ SELECT
 FROM
     users;
 
--- Select statement for currency_rates table
 SELECT
     id,
     currency_pair,
@@ -23,7 +21,6 @@ SELECT
 FROM
     currency_rates;
 
--- Select statement for asset_prices table
 SELECT
     id,
     asset_type,
@@ -33,7 +30,6 @@ SELECT
 FROM
     asset_prices;
 
--- Select statement for user_preferences table
 SELECT
     id,
     user_id,
@@ -46,7 +42,6 @@ SELECT
 FROM
     user_preferences;
 
--- Select statement for notifications table
 SELECT
     id,
     user_id,

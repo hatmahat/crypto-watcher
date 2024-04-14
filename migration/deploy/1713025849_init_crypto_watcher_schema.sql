@@ -23,7 +23,7 @@ CREATE TABLE currency_rates (
 
 CREATE TABLE asset_prices (
     id SERIAL PRIMARY KEY,
-    asset_type VARCHAR(50), -- 'crypto' or 'stock'
+    asset_type VARCHAR(50), -- 'CRYPTO' or 'STOCK'
     asset_code VARCHAR(50), -- such as 'BTC', 'ETH' for cryptos or 'AAPL', 'GOOGL' for stocks
     price_usd DECIMAL(18, 4),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -32,7 +32,7 @@ CREATE TABLE asset_prices (
 CREATE TABLE user_preferences (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
-    asset_type VARCHAR(50), -- 'crypto' or 'stock'
+    asset_type VARCHAR(50), -- 'CRYPTO' or 'STOCK'
     asset_code VARCHAR(50), -- such as 'BTC', 'ETH' for cryptos or 'AAPL', 'GOOGL' for stocks
     threshold_percentage DECIMAL(5, 2),
     observation_period INTEGER DEFAULT 15, -- This is in minutes
