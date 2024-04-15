@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto-watcher-backend/internal/config"
 	"crypto-watcher-backend/internal/service"
-	"fmt"
 
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
@@ -58,8 +57,8 @@ func NewWatcherWorker(param WatcherWorkerParam) *WatcherWorker {
 }
 
 func (c *WatcherWorker) registerJobs() {
-	fmt.Println("Registering jobs...")
-	defer fmt.Println("Jobs are successfully registered")
+	logrus.Info("Registering jobs...")
+	defer logrus.Info("Jobs are successfully registered")
 
 	for i := range c.cronJob {
 		for _, cronJob := range c.cronJob[i].GenerateWorkerParameters() {
@@ -83,13 +82,13 @@ func (c *WatcherWorker) GenerateHandler(f func(ctx context.Context)) func() {
 
 // Start starts all the registered jobs
 func (c *WatcherWorker) Start() {
-	fmt.Println("Starting worker...")
+	logrus.Info("Starting worker...")
 	c.cronPool.Start()
 }
 
 // Stop stops all currently running jobs
 func (c *WatcherWorker) Stop() {
-	fmt.Println("Stopping worker...")
-	defer fmt.Println("Cron is gracefully stopped")
+	logrus.Info("Stopping worker...")
+	defer logrus.Info("Cron is gracefully stopped")
 	c.cronPool.Stop()
 }

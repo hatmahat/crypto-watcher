@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/spf13/viper"
@@ -10,6 +11,7 @@ type (
 	// Config holds all the configuration for the application.
 	Config struct {
 		ENV string
+		DB  map[string]*Database
 		ServerConfig
 		WorkerConfig
 		SchedulerConfig
@@ -71,6 +73,36 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 
 	env := getStringOrDefault("ENV", "staging")
 
+	dbMasterConnection := DatabaseConnectionConfig{
+		Host:     getStringOrPanic("DATABASE_MASTER_HOST"),
+		Port:     getStringOrPanic("DATABASE_MASTER_PORT"),
+		User:     getStringOrPanic("DATABASE_MASTER_USER"),
+		Password: getStringOrPanic("DATABASE_MASTER_PASSWORD"),
+		DBName:   getStringOrPanic("DATABASE_MASTER_DBNAME"),
+		SSLMode:  getStringOrPanic("DATABASE_MASTER_SSLMODE"),
+	}
+
+	dbMasterUrl := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		dbMasterConnection.Host, dbMasterConnection.Port, dbMasterConnection.User,
+		dbMasterConnection.Password, dbMasterConnection.DBName, dbMasterConnection.SSLMode,
+	)
+
+	dbMaster := &DatabaseConfig{
+		Driver:      getStringOrPanic("DATABASE_MASTER_DRIVER"),
+		Url:         dbMasterUrl,
+		MaxOpen:     getIntOrDefault("DATABASE_MASTER_MAX_OPEN_CONNECTION", 10),
+		MaxIdle:     getIntOrDefault("DATABASE_MASTER_MAX_IDLE", 5),
+		MaxLifeTime: getIntOrDefault("DATABASE_MASTER_CONNECTION_MAX_LIFE_TIME", 0),
+	}
+
+	db := map[string]*Database{
+		CryptoWatcherDB: {
+			Master: dbMaster,
+			Slave:  nil, // TODO: add slave DB config here
+		},
+	}
+
 	serverConfig := ServerConfig{
 		APIPort:       getIntOrDefault("SERVER_API_PORT", 9000),
 		GlobalTimeout: getIntOrDefault("SERVER_GLOBAL_TIMEOUT", 30000),
@@ -110,6 +142,7 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 
 	return &Config{
 		ENV:             env,
+		DB:              db,
 		ServerConfig:    serverConfig,
 		WorkerConfig:    workerConfig,
 		SchedulerConfig: schedulerConfig,

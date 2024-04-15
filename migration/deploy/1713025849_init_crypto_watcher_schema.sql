@@ -44,7 +44,7 @@ CREATE TABLE notifications (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     preference_id INTEGER REFERENCES user_preferences(id), -- Reference to user preferences
-    message TEXT,
+    parameters JSONB DEFAULT '{}',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
