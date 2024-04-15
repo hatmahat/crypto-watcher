@@ -46,7 +46,7 @@ SELECT
     id,
     user_id,
     preference_id,
-    message,
+    parameters,
     created_at
 FROM
     notifications;

@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto-watcher-backend/internal/app/worker"
 	"crypto-watcher-backend/internal/config"
+	"crypto-watcher-backend/internal/repository"
 	"crypto-watcher-backend/internal/service"
 	"net/http"
 
@@ -16,6 +17,7 @@ import (
 var (
 	cfgSet = wire.NewSet(
 		wire.FieldsOf(new(*config.Config), "ServerConfig"),
+		wire.FieldsOf(new(*config.Config), "DB"),
 		wire.FieldsOf(new(*config.Config), "WorkerConfig"),
 		wire.FieldsOf(new(*config.Config), "SchedulerConfig"),
 		wire.FieldsOf(new(*config.Config), "CoinGeckoConfig"),
@@ -23,10 +25,16 @@ var (
 	)
 
 	dependencySet = wire.NewSet(
+		InitializeDB,
 		NewCoin,
 		NewCoinGecko,
 		NewCurrency,
 		NewWaMessaging,
+	)
+
+	repoSet = wire.NewSet(
+		repository.NewCurrencyRateRepo,
+		wire.Struct(new(repository.CurrencyRateRepoParam), "*"),
 	)
 
 	serviceSet = wire.NewSet(
@@ -44,6 +52,7 @@ var (
 	allSet = wire.NewSet(
 		cfgSet,
 		dependencySet,
+		repoSet,
 		serviceSet,
 		appSet,
 	)
