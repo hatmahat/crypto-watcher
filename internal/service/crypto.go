@@ -68,7 +68,7 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 		return err
 	}
 
-	usdToIdr, err := cs.currencyFromUsd(ctx, currency_api.IDR)
+	usdToIdr, err := cs.convertCurrencyFromUsd(ctx, currency_api.IDR)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":           err.Error(),
@@ -81,7 +81,7 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 	idrPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD*(*usdToIdr)), '.')
 	fmt.Printf("USD %s\nIDR %s\n", usdPrice, idrPrice)
 
-	// parameters := []string{ // TODO: make parameters dynamic and also add currency conversion to IDR
+	// parameters := []string{ // TODO: make parameters dynamic
 	// 	"increased",
 	// 	"3.5",
 	// 	usdPrice,
@@ -102,8 +102,8 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 	return nil
 }
 
-func (cs cryptoService) currencyFromUsd(ctx context.Context, currencyCode string) (*int, error) {
-	const funcName = "[internal][service]currencyFromUsd"
+func (cs cryptoService) convertCurrencyFromUsd(ctx context.Context, currencyCode string) (*int, error) {
+	const funcName = "[internal][service]convertCurrencyFromUsd"
 
 	currencyPair, err := validateCurrencyCode(currencyCode)
 	if err != nil {
