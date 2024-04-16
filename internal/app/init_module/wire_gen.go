@@ -29,6 +29,10 @@ func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client)
 		DB: v2,
 	}
 	currencyRateRepo := repository.NewCurrencyRateRepo(currencyRateRepoParam)
+	assetPriceRepoParam := repository.AssetPriceRepoParam{
+		DB: v2,
+	}
+	assetPriceRepo := repository.NewAssetPriceRepo(assetPriceRepoParam)
 	cryptoServiceParam := service.CryptoServiceParam{
 		CoinGecko:        coinGecko,
 		Coin:             coin,
@@ -36,6 +40,7 @@ func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client)
 		WaMessaging:      waMessaging,
 		Cfg:              cfg,
 		CurrencyRateRepo: currencyRateRepo,
+		AssetPriceRepo:   assetPriceRepo,
 	}
 	cryptoService := service.NewCryptoService(cryptoServiceParam)
 	watcherWorkerParam := worker.WatcherWorkerParam{
@@ -60,7 +65,7 @@ var (
 		NewWaMessaging,
 	)
 
-	repoSet = wire.NewSet(repository.NewCurrencyRateRepo, wire.Struct(new(repository.CurrencyRateRepoParam), "*"))
+	repoSet = wire.NewSet(repository.NewCurrencyRateRepo, wire.Struct(new(repository.CurrencyRateRepoParam), "*"), repository.NewAssetPriceRepo, wire.Struct(new(repository.AssetPriceRepoParam), "*"))
 
 	serviceSet = wire.NewSet(service.NewCryptoService, wire.Struct(new(service.CryptoServiceParam), "*"))
 
