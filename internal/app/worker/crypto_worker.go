@@ -32,17 +32,17 @@ func NewCryptoWorker(param CryptoWorkerParam) *CryptoWorker {
 func (cw *CryptoWorker) GenerateWorkerParameters() []JobParameter {
 	return []JobParameter{
 		{
-			Name:     worker_const.BitcoinPriceWatcher,
+			Name:     worker_const.BitcoinWatcher,
 			TimeSpec: cw.config.SchedulerBitCoinFetch,
-			Handler:  cw.BitcoinPriceWatcher,
+			Handler:  cw.BitcoinWatcher,
 		},
 	}
 }
 
-func (cw *CryptoWorker) BitcoinPriceWatcher(ctx context.Context) {
-	const funcName = "[internal][app][worker]BitcoinPriceWatcher"
+func (cw *CryptoWorker) BitcoinWatcher(ctx context.Context) {
+	const funcName = "[internal][app][worker]BitcoinWatcher"
 	logger.LogWithCustomTime(fmt.Sprintf("%s: Running", funcName))
-	err := cw.cryptoService.BitcoinPriceWatcher(ctx)
+	err := cw.cryptoService.BitcoinWatcher(ctx)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),

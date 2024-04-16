@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"crypto-watcher-backend/internal/config"
+	"crypto-watcher-backend/internal/constant/asset_const"
 	"crypto-watcher-backend/internal/constant/currency_const"
 	"crypto-watcher-backend/internal/entity"
 	"crypto-watcher-backend/internal/repository"
@@ -20,7 +21,7 @@ import (
 
 type (
 	CryptoService interface {
-		BitcoinPriceWatcher(ctx context.Context) error
+		BitcoinWatcher(ctx context.Context) error
 	}
 
 	CryptoServiceParam struct {
@@ -30,6 +31,7 @@ type (
 		WaMessaging      whatsapp_cloud_api.WaMessaging
 		Cfg              *config.Config
 		CurrencyRateRepo repository.CurrencyRateRepo
+		AssetPriceRepo   repository.AssetPriceRepo
 	}
 
 	cryptoService struct {
@@ -39,6 +41,7 @@ type (
 		waMessaging      whatsapp_cloud_api.WaMessaging
 		cfg              *config.Config
 		currencyRateRepo repository.CurrencyRateRepo
+		assetPriceRepo   repository.AssetPriceRepo
 	}
 )
 
@@ -50,21 +53,18 @@ func NewCryptoService(param CryptoServiceParam) CryptoService {
 		waMessaging:      param.WaMessaging,
 		cfg:              param.Cfg,
 		currencyRateRepo: param.CurrencyRateRepo,
+		assetPriceRepo:   param.AssetPriceRepo,
 	}
 }
 
-func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
-	const funcName = "[internal][service]BitcoinPriceWatcher"
+func (cs *cryptoService) BitcoinWatcher(ctx context.Context) error {
+	const funcName = "[internal][service]BitcoinWatcher"
 
-	coinGeckoParams := map[string]string{
-		coingecko_api.Ids:          coingecko_api.Bitcoin,
-		coingecko_api.VsCurrencies: coingecko_api.Usd,
-	}
-	bitcoinPrice, err := cs.coinGecko.GetCurrentPrice(ctx, coinGeckoParams)
+	bitcoinPrice, err := cs.fetchBitcoinPriceFromCoinGeckoAPIAndStore(ctx)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
-		}).Errorf("%s: Error Getting Current Price from Coin Gecko", funcName)
+		}).Errorf("%s: Error Fetching & Storing Bitcoin Price [%s]", funcName, err)
 		return err
 	}
 
@@ -73,12 +73,12 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 		logrus.WithFields(logrus.Fields{
 			"err":           err.Error(),
 			"currency_code": currency_api.IDR,
-		}).Errorf("%s: Error Getting Currency Price from Currency API", funcName)
+		}).Errorf("%s: Error Getting Currency Price from Currency API [%s]", funcName, err)
 		return err
 	}
 
-	usdPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD), ',')
-	idrPrice := format.ThousandSepartor(int64(bitcoinPrice.Bitcoin.USD*(*usdToIdr)), '.')
+	usdPrice := format.ThousandSepartor(int64(*bitcoinPrice), ',')
+	idrPrice := format.ThousandSepartor(int64(*bitcoinPrice*(*usdToIdr)), '.')
 	fmt.Printf("USD %s\nIDR %s\n", usdPrice, idrPrice)
 
 	// parameters := []string{ // TODO: make parameters dynamic
@@ -100,6 +100,39 @@ func (cs *cryptoService) BitcoinPriceWatcher(ctx context.Context) error {
 	// }
 
 	return nil
+}
+
+func (cs *cryptoService) fetchBitcoinPriceFromCoinGeckoAPIAndStore(ctx context.Context) (*int, error) {
+	const funcName = "[internal][service]fetchBitcoinPriceFromCoinGeckoAPIAndStore"
+
+	coinGeckoParams := map[string]string{
+		coingecko_api.Ids:          coingecko_api.Bitcoin,
+		coingecko_api.VsCurrencies: coingecko_api.Usd,
+	}
+	bitcoinPrice, err := cs.coinGecko.GetCurrentPrice(ctx, coinGeckoParams)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err.Error(),
+		}).Errorf("%s: Error Getting Current Price from Coin Gecko [%s]", funcName, err)
+		return nil, err
+	}
+
+	assetPrice := entity.AssetPrice{
+		AssetType: asset_const.CRYPTO,
+		AssetCode: asset_const.BTC,
+		PriceUsd:  float64(bitcoinPrice.Bitcoin.USD),
+	}
+
+	err = cs.assetPriceRepo.InsertAssetPrice(ctx, assetPrice)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err":         err.Error(),
+			"asset_price": assetPrice,
+		}).Errorf("%s: Error Inserting Asset Price [%s]", funcName, err)
+		return nil, err
+	}
+
+	return &bitcoinPrice.Bitcoin.USD, nil
 }
 
 func (cs cryptoService) convertCurrencyFromUsd(ctx context.Context, currencyCode string) (*int, error) {

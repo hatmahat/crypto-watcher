@@ -29,7 +29,7 @@ type (
 
 const (
 	getCurrencyRateByDateQuery = `SELECT id, currency_pair, rate, (created_at AT TIME ZONE 'Asia/Jakarta') created_at FROM currency_rates WHERE currency_pair = $1 AND DATE(created_at AT TIME ZONE 'Asia/Jakarta') = $2`
-	insertCurrencyRateQuery    = `INSERT INTO currency_rates(currency_pair, rate) VALUES ($1, $2) RETURNING id`
+	insertCurrencyRateQuery    = `INSERT INTO currency_rates(currency_pair, rate) VALUES ($1, $2)`
 )
 
 func NewCurrencyRateRepo(param CurrencyRateRepoParam) CurrencyRateRepo {

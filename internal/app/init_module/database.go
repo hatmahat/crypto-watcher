@@ -17,7 +17,7 @@ func InitializeDB(dbConfig map[string]*config.Database) map[string]*database.Rep
 	replicaCollection := make(map[string]*database.Replication)
 	for dbName, cfg := range dbConfig {
 		if cfg == nil {
-			logrus.Infof("%s: empty config for %s", funcName, dbName)
+			logrus.Infof("%s: empty config for [%s]", funcName, dbName)
 			continue
 		}
 
@@ -37,7 +37,7 @@ func InitializeDB(dbConfig map[string]*config.Database) map[string]*database.Rep
 			Retry:                 1,
 		})
 		if err != nil {
-			logrus.Fatalf("%s: Failed to connect to master DB %s", funcName, err)
+			logrus.Fatalf("%s: Failed to connect to master DB [%s]", funcName, err)
 		}
 
 		if cfg.Slave != nil {
@@ -48,7 +48,7 @@ func InitializeDB(dbConfig map[string]*config.Database) map[string]*database.Rep
 				Retry:                 1,
 			})
 			if err != nil {
-				logrus.Fatalf("%s: Failed to connect to slave DB %s", funcName, err)
+				logrus.Fatalf("%s: Failed to connect to slave DB [%s]", funcName, err)
 			}
 		}
 		replicaCollection[dbName] = replica
@@ -90,7 +90,7 @@ func Connect(ctx context.Context, driver, dataSource string, conOpts *database.C
 	db.SetMaxIdleConns(opts.MaxIdleConnections)
 	db.SetConnMaxIdleTime(opts.ConnectionMaxLifetime)
 	if e := db.Ping(); e != nil {
-		logrus.Infof("%s: Error when ping %s", dataSource, err)
+		logrus.Infof("%s: Error when ping [%s]", dataSource, err)
 		panic(e)
 	}
 
