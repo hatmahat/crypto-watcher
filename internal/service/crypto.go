@@ -9,9 +9,9 @@ import (
 	"crypto-watcher-backend/internal/repository"
 	"crypto-watcher-backend/pkg/coin_api"
 	"crypto-watcher-backend/pkg/coingecko_api"
-	"crypto-watcher-backend/pkg/currency_api"
 	"crypto-watcher-backend/pkg/currency_converter_api"
 	"crypto-watcher-backend/pkg/format"
+	"crypto-watcher-backend/pkg/validation"
 	"crypto-watcher-backend/pkg/whatsapp_cloud_api"
 	"database/sql"
 	"fmt"
@@ -23,7 +23,7 @@ import (
 
 type (
 	CryptoService interface {
-		BitcoinWatcher(ctx context.Context) error
+		CryptoWatcher(ctx context.Context) error
 	}
 
 	CryptoServiceParam struct {
@@ -59,10 +59,11 @@ func NewCryptoService(param CryptoServiceParam) CryptoService {
 	}
 }
 
-func (cs *cryptoService) BitcoinWatcher(ctx context.Context) error {
-	const funcName = "[internal][service]BitcoinWatcher"
+func (cs *cryptoService) CryptoWatcher(ctx context.Context) error {
+	const funcName = "[internal][service]CryptoWatcher"
 
-	bitcoinPrice, err := cs.fetchBitcoinPriceFromCoinGeckoAPIAndStore(ctx)
+	// TODO (improvement): not only support bitcoin, get from user preference
+	bitcoinPriceUSD, err := cs.fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx, asset_const.BTC)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
@@ -70,17 +71,17 @@ func (cs *cryptoService) BitcoinWatcher(ctx context.Context) error {
 		return err
 	}
 
-	usdToIdr, err := cs.convertCurrencyFromUsd(ctx, currency_api.IDR)
+	rateUSDToIDR, err := cs.convertCurrencyFromUSD(ctx, currency_const.IDR)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":           err.Error(),
-			"currency_code": currency_api.IDR,
+			"currency_code": currency_const.IDR,
 		}).Errorf("%s: Error Getting Currency Price from Currency API [%s]", funcName, err)
 		return err
 	}
 
-	usdPrice := format.ThousandSepartor(int64(*bitcoinPrice), ',')
-	idrPrice := format.ThousandSepartor(int64(*bitcoinPrice*(*usdToIdr)), '.')
+	usdPrice := format.ThousandSepartor(int64(*bitcoinPriceUSD), ',')
+	idrPrice := format.ThousandSepartor(int64(*bitcoinPriceUSD*(*rateUSDToIDR)), '.')
 	fmt.Printf("USD %s\nIDR %s\n", usdPrice, idrPrice)
 
 	// parameters := []string{ // TODO: make parameters dynamic
@@ -104,28 +105,33 @@ func (cs *cryptoService) BitcoinWatcher(ctx context.Context) error {
 	return nil
 }
 
-func (cs *cryptoService) fetchBitcoinPriceFromCoinGeckoAPIAndStore(ctx context.Context) (*int, error) {
-	const funcName = "[internal][service]fetchBitcoinPriceFromCoinGeckoAPIAndStore"
+func (cs *cryptoService) fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx context.Context, assetCode string) (*int, error) {
+	const funcName = "[internal][service]fetchCryptoPriceFromCoinGeckoAPIAndStore"
 
-	// TODO (improvement): not only support bitcoin, get from user preference
+	coinGeckoId, err := validation.ValidateFromMapper(assetCode, asset_const.CoinGeckoMapper)
+	if err != nil {
+		logrus.Errorf("%s: Asset Code [%s] Not Found", funcName, assetCode)
+		return nil, err
+	}
+
 	coinGeckoParams := map[string]string{
-		coingecko_api.Ids:          coingecko_api.Bitcoin,
-		coingecko_api.VsCurrencies: coingecko_api.Usd,
+		coingecko_api.Ids:          *coinGeckoId,
+		coingecko_api.VsCurrencies: coingecko_api.USD,
 	}
 	bitcoinPrice, err := cs.coinGecko.GetCurrentPrice(ctx, coinGeckoParams)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
-			"err": err.Error(),
+			"err":               err.Error(),
+			"coin_gecko_params": coinGeckoParams,
 		}).Errorf("%s: Error Getting Current Price from Coin Gecko [%s]", funcName, err)
 		return nil, err
 	}
 
 	assetPrice := entity.AssetPrice{
 		AssetType: asset_const.CRYPTO,
-		AssetCode: asset_const.BTC,
+		AssetCode: assetCode,
 		PriceUsd:  float64(bitcoinPrice.Bitcoin.USD),
 	}
-
 	err = cs.assetPriceRepo.InsertAssetPrice(ctx, assetPrice)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
@@ -138,16 +144,11 @@ func (cs *cryptoService) fetchBitcoinPriceFromCoinGeckoAPIAndStore(ctx context.C
 	return &bitcoinPrice.Bitcoin.USD, nil
 }
 
-func (cs cryptoService) convertCurrencyFromUsd(ctx context.Context, currencyCode string) (*int, error) {
-	const funcName = "[internal][service]convertCurrencyFromUsd"
+func (cs cryptoService) convertCurrencyFromUSD(ctx context.Context, currencyCode string) (*int, error) {
+	const funcName = "[internal][service]convertCurrencyFromUSD"
 
-	currencyPair, err := validateCurrencyCode(currencyCode)
-	if err != nil {
-		logrus.Errorf("%s: Currency Pair [%s] Not Found", funcName, currencyCode)
-		return nil, fmt.Errorf("%s: Currency Pair [%s] Not Found", funcName, currencyCode)
-	}
-
-	currencyRate, err := cs.currencyRateRepo.GetCurrencyRateByDate(ctx, *currencyPair, time.Now())
+	currencyPair := currency_const.CurrencyPair(currency_const.USD, currencyCode)
+	currencyRate, err := cs.currencyRateRepo.GetCurrencyRateByDate(ctx, currencyPair, time.Now())
 	if err != nil && err != sql.ErrNoRows {
 		logrus.WithFields(logrus.Fields{
 			"err":  err.Error(),
@@ -157,7 +158,7 @@ func (cs cryptoService) convertCurrencyFromUsd(ctx context.Context, currencyCode
 	}
 
 	if currencyRate == nil {
-		currencyRate, err = cs.fetchRateFromCurrencyAPIAndStore(ctx, currencyCode)
+		currencyRate, err = cs.fetchRateFromCurrencyConverterAPIAndStore(ctx, currency_const.USD, currencyCode)
 		if err != nil {
 			logrus.WithFields(logrus.Fields{
 				"err":           err.Error(),
@@ -171,19 +172,25 @@ func (cs cryptoService) convertCurrencyFromUsd(ctx context.Context, currencyCode
 	return &convertedRate, nil
 }
 
-func (cs *cryptoService) fetchRateFromCurrencyAPIAndStore(ctx context.Context, currencyCode string) (*entity.CurrencyRate, error) {
-	const funcName = "[internal][service]fetchRateFromCurrencyAPIAndStore"
+func (cs *cryptoService) fetchRateFromCurrencyConverterAPIAndStore(ctx context.Context, currencyCodeFrom, currencyCodeTo string) (*entity.CurrencyRate, error) {
+	const funcName = "[internal][service]fetchRateFromCurrencyConverterAPIAndStore"
 
-	currencyPair, err := validateCurrencyCode(currencyCode)
+	convertCurrencyFrom, err := validation.ValidateFromMapper(currencyCodeFrom, currency_const.CurrencyConverterMapper)
 	if err != nil {
-		logrus.Errorf("%s: Currency Pair [%s] Not Found", funcName, currencyCode)
-		return nil, fmt.Errorf("%s: Currency Pair [%s] Not Found", funcName, currencyCode)
+		logrus.Errorf("%s: Currency Converter Code From [%s] Not Found", funcName, currencyCodeTo)
+		return nil, err
+	}
+
+	convertCurrencyTo, err := validation.ValidateFromMapper(currencyCodeTo, currency_const.CurrencyConverterMapper)
+	if err != nil {
+		logrus.Errorf("%s: Currency Converter Code To [%s] Not Found", funcName, currencyCodeTo)
+		return nil, err
 	}
 
 	currencyConverterParams := map[string]string{
 		currency_converter_api.Format: currency_converter_api.JSON,
-		currency_converter_api.From:   currency_converter_api.USD,
-		currency_converter_api.To:     currency_converter_api.IDR,
+		currency_converter_api.From:   *convertCurrencyFrom,
+		currency_converter_api.To:     *convertCurrencyTo,
 		currency_converter_api.Amount: "1",
 	}
 	currencyConverter, err := cs.currencyConverter.GetCurrencyRate(ctx, currencyConverterParams)
@@ -194,9 +201,9 @@ func (cs *cryptoService) fetchRateFromCurrencyAPIAndStore(ctx context.Context, c
 		return nil, err
 	}
 
-	rateStr, ok := currencyConverter.Rates[currency_converter_api.IDR]
+	rateStr, ok := currencyConverter.Rates[*convertCurrencyTo]
 	if !ok {
-		return nil, fmt.Errorf("%s: Currency Code [%s] not Found", funcName, currencyCode)
+		return nil, fmt.Errorf("%s: Currency Code [%s] not Found", funcName, currencyCodeTo)
 	}
 
 	rate, err := strconv.ParseFloat(rateStr.Rate, 64)
@@ -206,7 +213,7 @@ func (cs *cryptoService) fetchRateFromCurrencyAPIAndStore(ctx context.Context, c
 
 	currencyRate := &entity.CurrencyRate{
 		Rate:         rate,
-		CurrencyPair: *currencyPair,
+		CurrencyPair: currency_const.CurrencyPair(currencyCodeFrom, currencyCodeTo),
 	}
 	err = cs.currencyRateRepo.InsertCurrencyRate(ctx, *currencyRate)
 	if err != nil {
@@ -216,15 +223,4 @@ func (cs *cryptoService) fetchRateFromCurrencyAPIAndStore(ctx context.Context, c
 	}
 
 	return currencyRate, nil
-}
-
-func validateCurrencyCode(currencyCode string) (*string, error) {
-	const funcName = "[internal][service]validateCurrencyCodes"
-
-	currencyPair, ok := currency_const.CurrencyPairMapper[currencyCode]
-	if !ok {
-		logrus.Errorf("%s: Currency Pair [%s] Not Found", funcName, currencyCode)
-		return nil, fmt.Errorf("%s: Currency Pair [%s] Not Found", funcName, currencyCode)
-	}
-	return &currencyPair, nil
 }
