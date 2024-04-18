@@ -10,5 +10,5 @@ const (
 
 	// Query Parameter Values
 	Bitcoin = "bitcoin"
-	Usd     = "usd"
+	USD     = "usd"
 )

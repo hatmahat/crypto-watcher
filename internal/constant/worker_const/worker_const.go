@@ -1,5 +1,5 @@
 package worker_const
 
 const (
-	BitcoinWatcher = "bitcoin_watcher"
+	CryptoWatcher = "crypto_watcher"
 )
