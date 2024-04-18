@@ -21,7 +21,7 @@ import (
 func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client) *WorkerWrapper {
 	coinGecko := NewCoinGecko(cfg)
 	coin := NewCoin(cfg)
-	currency := NewCurrency(cfg)
+	currencyConverter := NewCurrencyConverter(cfg)
 	waMessaging := NewWaMessaging(cfg)
 	v := cfg.DB
 	v2 := InitializeDB(v)
@@ -34,13 +34,13 @@ func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client)
 	}
 	assetPriceRepo := repository.NewAssetPriceRepo(assetPriceRepoParam)
 	cryptoServiceParam := service.CryptoServiceParam{
-		CoinGecko:        coinGecko,
-		Coin:             coin,
-		Currency:         currency,
-		WaMessaging:      waMessaging,
-		Cfg:              cfg,
-		CurrencyRateRepo: currencyRateRepo,
-		AssetPriceRepo:   assetPriceRepo,
+		CoinGecko:         coinGecko,
+		Coin:              coin,
+		CurrencyConverter: currencyConverter,
+		WaMessaging:       waMessaging,
+		Cfg:               cfg,
+		CurrencyRateRepo:  currencyRateRepo,
+		AssetPriceRepo:    assetPriceRepo,
 	}
 	cryptoService := service.NewCryptoService(cryptoServiceParam)
 	watcherWorkerParam := worker.WatcherWorkerParam{
@@ -62,6 +62,7 @@ var (
 		NewCoin,
 		NewCoinGecko,
 		NewCurrency,
+		NewCurrencyConverter,
 		NewWaMessaging,
 	)
 

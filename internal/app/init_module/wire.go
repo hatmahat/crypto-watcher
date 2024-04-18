@@ -29,6 +29,7 @@ var (
 		NewCoin,
 		NewCoinGecko,
 		NewCurrency,
+		NewCurrencyConverter,
 		NewWaMessaging,
 	)
 
