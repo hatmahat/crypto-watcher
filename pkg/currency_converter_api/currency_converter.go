@@ -1,4 +1,4 @@
-package coingecko_api
+package currency_converter_api
 
 import (
 	"context"
@@ -6,34 +6,37 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
 
 type (
-	CoinGecko interface {
-		GetCurrentPrice(ctx context.Context, params map[string]string) (*CoinGeckoPriceResponse, error)
+	CurrencyConverter interface {
+		GetCurrencyRate(ctx context.Context, params map[string]string) (*CurrencyConverterResponse, error)
 	}
 
-	coinGecko struct {
+	currencyConverter struct {
 		host       string
+		apiKey     string
 		httpClient *http.Client
 	}
 )
 
-func NewCoinGecko(host string) CoinGecko {
+func NewCurrencyConverter(host, apiKey string) CurrencyConverter {
 	httpClient := &http.Client{}
 
-	return &coinGecko{
+	return &currencyConverter{
 		host:       host,
+		apiKey:     apiKey,
 		httpClient: httpClient,
 	}
 }
 
-func (cg *coinGecko) GetCurrentPrice(ctx context.Context, queryParams map[string]string) (*CoinGeckoPriceResponse, error) {
-	const funcName = "[pkg][coingecko_api]GetCurrentPrice"
+func (cc *currencyConverter) GetCurrencyRate(ctx context.Context, queryParams map[string]string) (*CurrencyConverterResponse, error) {
+	const funcName = "[pkg][currency_converter_api]GetCurrencyRate"
 
-	u, err := url.Parse(cg.host)
+	u, err := url.Parse(cc.host)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
@@ -41,7 +44,7 @@ func (cg *coinGecko) GetCurrentPrice(ctx context.Context, queryParams map[string
 		return nil, err
 	}
 
-	u.Path += getSimplePricePath
+	u.Path += currencyConverterPath
 
 	q := u.Query()
 	for key, value := range queryParams {
@@ -57,14 +60,18 @@ func (cg *coinGecko) GetCurrentPrice(ctx context.Context, queryParams map[string
 		return nil, err
 	}
 
-	responseBody, err := http_request.DoRequest(cg.httpClient.Do, req, funcName)
+	cleanedUrl := strings.TrimPrefix(cc.host, "https://")
+	req.Header.Set(XRapidAPIHost, cleanedUrl)
+	req.Header.Set(XRapidAPIKey, cc.apiKey)
+
+	responseBody, err := http_request.DoRequest(cc.httpClient.Do, req, funcName)
 	if err != nil {
 		logrus.WithError(err).Errorf("%s: Error Do Request", funcName)
 		return nil, err
 	}
 
-	var coinGeckoPriceResponse CoinGeckoPriceResponse
-	if err := json.Unmarshal(responseBody, &coinGeckoPriceResponse); err != nil {
+	var currencyConverterResponse CurrencyConverterResponse
+	if err := json.Unmarshal(responseBody, &currencyConverterResponse); err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":       err.Error(),
 			"resp_body": string(responseBody),
@@ -72,5 +79,5 @@ func (cg *coinGecko) GetCurrentPrice(ctx context.Context, queryParams map[string
 		return nil, err
 	}
 
-	return &coinGeckoPriceResponse, nil
+	return &currencyConverterResponse, nil
 }

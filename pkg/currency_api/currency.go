@@ -43,7 +43,7 @@ func (c *currency) GetCurrentCurrency(ctx context.Context, queryParams map[strin
 		return nil, err
 	}
 
-	u.Path += getLatest
+	u.Path += getLatestPath
 
 	queryParams[APIKey] = c.apiKey
 	q := u.Query()
@@ -52,7 +52,7 @@ func (c *currency) GetCurrentCurrency(ctx context.Context, queryParams map[strin
 	}
 	u.RawQuery = q.Encode()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),

@@ -10,10 +10,12 @@ import (
 	"crypto-watcher-backend/pkg/coin_api"
 	"crypto-watcher-backend/pkg/coingecko_api"
 	"crypto-watcher-backend/pkg/currency_api"
+	"crypto-watcher-backend/pkg/currency_converter_api"
 	"crypto-watcher-backend/pkg/format"
 	"crypto-watcher-backend/pkg/whatsapp_cloud_api"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -25,35 +27,35 @@ type (
 	}
 
 	CryptoServiceParam struct {
-		CoinGecko        coingecko_api.CoinGecko
-		Coin             coin_api.Coin
-		Currency         currency_api.Currency
-		WaMessaging      whatsapp_cloud_api.WaMessaging
-		Cfg              *config.Config
-		CurrencyRateRepo repository.CurrencyRateRepo
-		AssetPriceRepo   repository.AssetPriceRepo
+		CoinGecko         coingecko_api.CoinGecko
+		Coin              coin_api.Coin
+		CurrencyConverter currency_converter_api.CurrencyConverter
+		WaMessaging       whatsapp_cloud_api.WaMessaging
+		Cfg               *config.Config
+		CurrencyRateRepo  repository.CurrencyRateRepo
+		AssetPriceRepo    repository.AssetPriceRepo
 	}
 
 	cryptoService struct {
-		coinGecko        coingecko_api.CoinGecko
-		coin             coin_api.Coin
-		currency         currency_api.Currency
-		waMessaging      whatsapp_cloud_api.WaMessaging
-		cfg              *config.Config
-		currencyRateRepo repository.CurrencyRateRepo
-		assetPriceRepo   repository.AssetPriceRepo
+		coinGecko         coingecko_api.CoinGecko
+		coin              coin_api.Coin
+		currencyConverter currency_converter_api.CurrencyConverter
+		waMessaging       whatsapp_cloud_api.WaMessaging
+		cfg               *config.Config
+		currencyRateRepo  repository.CurrencyRateRepo
+		assetPriceRepo    repository.AssetPriceRepo
 	}
 )
 
 func NewCryptoService(param CryptoServiceParam) CryptoService {
 	return &cryptoService{
-		coinGecko:        param.CoinGecko,
-		coin:             param.Coin,
-		currency:         param.Currency,
-		waMessaging:      param.WaMessaging,
-		cfg:              param.Cfg,
-		currencyRateRepo: param.CurrencyRateRepo,
-		assetPriceRepo:   param.AssetPriceRepo,
+		coinGecko:         param.CoinGecko,
+		coin:              param.Coin,
+		currencyConverter: param.CurrencyConverter,
+		waMessaging:       param.WaMessaging,
+		cfg:               param.Cfg,
+		currencyRateRepo:  param.CurrencyRateRepo,
+		assetPriceRepo:    param.AssetPriceRepo,
 	}
 }
 
@@ -105,6 +107,7 @@ func (cs *cryptoService) BitcoinWatcher(ctx context.Context) error {
 func (cs *cryptoService) fetchBitcoinPriceFromCoinGeckoAPIAndStore(ctx context.Context) (*int, error) {
 	const funcName = "[internal][service]fetchBitcoinPriceFromCoinGeckoAPIAndStore"
 
+	// TODO (improvement): not only support bitcoin, get from user preference
 	coinGeckoParams := map[string]string{
 		coingecko_api.Ids:          coingecko_api.Bitcoin,
 		coingecko_api.VsCurrencies: coingecko_api.Usd,
@@ -177,22 +180,32 @@ func (cs *cryptoService) fetchRateFromCurrencyAPIAndStore(ctx context.Context, c
 		return nil, fmt.Errorf("%s: Currency Pair [%s] Not Found", funcName, currencyCode)
 	}
 
-	currencyParams := map[string]string{
-		currency_api.Currencies: currencyCode,
+	currencyConverterParams := map[string]string{
+		currency_converter_api.Format: currency_converter_api.JSON,
+		currency_converter_api.From:   currency_converter_api.USD,
+		currency_converter_api.To:     currency_converter_api.IDR,
+		currency_converter_api.Amount: "1",
 	}
-	currency, err := cs.currency.GetCurrentCurrency(ctx, currencyParams)
+	currencyConverter, err := cs.currencyConverter.GetCurrencyRate(ctx, currencyConverterParams)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
 		}).Errorf("%s: Error Getting Currency Price from Currency API [%s]", funcName, err)
 		return nil, err
 	}
-	val, ok := currency.Data[currencyCode]
+
+	rateStr, ok := currencyConverter.Rates[currency_converter_api.IDR]
 	if !ok {
 		return nil, fmt.Errorf("%s: Currency Code [%s] not Found", funcName, currencyCode)
 	}
+
+	rate, err := strconv.ParseFloat(rateStr.Rate, 64)
+	if err != nil {
+		return nil, fmt.Errorf("%s: Failed to Convert to float64 [%s]", funcName, rateStr.Rate)
+	}
+
 	currencyRate := &entity.CurrencyRate{
-		Rate:         val.Value,
+		Rate:         rate,
 		CurrencyPair: *currencyPair,
 	}
 	err = cs.currencyRateRepo.InsertCurrencyRate(ctx, *currencyRate)

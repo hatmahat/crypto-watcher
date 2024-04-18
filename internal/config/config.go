@@ -18,6 +18,7 @@ type (
 		CoinConfig
 		CoinGeckoConfig
 		CurrencyConfig
+		CurrencyConverterConfig
 		WhatsAppConfig
 	}
 
@@ -49,6 +50,11 @@ type (
 	CurrencyConfig struct {
 		CurrencyAPIHost string
 		CurrencyAPIKey  string
+	}
+
+	CurrencyConverterConfig struct {
+		CurrencyConverterAPIHost string
+		CurrencyConverterAPIKey  string
 	}
 
 	WhatsAppConfig struct {
@@ -140,16 +146,22 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 		CurrencyAPIKey:  getStringOrPanic("CURRENCY_API_KEY"),
 	}
 
+	currencyConverterConfig := CurrencyConverterConfig{
+		CurrencyConverterAPIHost: getStringOrPanic("CURRENCY_CONVERTER_API_HOST"),
+		CurrencyConverterAPIKey:  getStringOrPanic("CURRENCY_CONVERTER_API_KEY"),
+	}
+
 	return &Config{
-		ENV:             env,
-		DB:              db,
-		ServerConfig:    serverConfig,
-		WorkerConfig:    workerConfig,
-		SchedulerConfig: schedulerConfig,
-		CoinConfig:      coinConfig,
-		CoinGeckoConfig: coinGeckoConfig,
-		WhatsAppConfig:  whatsAppConfig,
-		CurrencyConfig:  currencyConfig,
+		ENV:                     env,
+		DB:                      db,
+		ServerConfig:            serverConfig,
+		WorkerConfig:            workerConfig,
+		SchedulerConfig:         schedulerConfig,
+		CoinConfig:              coinConfig,
+		CoinGeckoConfig:         coinGeckoConfig,
+		WhatsAppConfig:          whatsAppConfig,
+		CurrencyConfig:          currencyConfig,
+		CurrencyConverterConfig: currencyConverterConfig,
 	}, nil
 }
 

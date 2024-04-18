@@ -2,7 +2,7 @@ package currency_api
 
 const (
 	// Paths
-	getLatest = "/latest"
+	getLatestPath = "/latest"
 
 	// Query Parameter Keys
 	APIKey     = "apikey"
