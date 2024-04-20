@@ -1,7 +1,7 @@
-## Crypto Watcher | Omni Alert
+## Crypto Watcher - Backend
 
 ### Goals
-- Monitor Bitcoin prices
+- Monitor Crypto prices
 - Send notification via WA or Telegram every extreme ups and downs of Bitcoin
 
 ### Database Entity Relationship Diagram  
