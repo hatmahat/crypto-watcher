@@ -1,8 +1,9 @@
 ## Crypto Watcher - Backend
 
 ### Goals
-- Monitor Crypto prices
-- Send notification via WA or Telegram every extreme ups and downs of Bitcoin
+- Monitor cryptocurrencies
+- Report cryptocurrencies
+- Send notification via WA or Telegram every extreme ups and downs of cryptocurrencies
 
 ### Database Entity Relationship Diagram  
 
