@@ -7,6 +7,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	DebugMode = false
+)
+
 type (
 	// Config holds all the configuration for the application.
 	Config struct {
@@ -20,6 +24,7 @@ type (
 		CurrencyConfig
 		CurrencyConverterConfig
 		WhatsAppConfig
+		TelegramConfig
 	}
 
 	ServerConfig struct {
@@ -63,6 +68,10 @@ type (
 		WhatsAppPhoneNumberId   string
 		WhatsAppTestPhoneNumber string
 	}
+
+	TelegramConfig struct {
+		TelegramBotAPIKey string
+	}
 )
 
 // LoadConfig loads the application configuration from a given path and name.
@@ -78,6 +87,12 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 	}
 
 	env := getStringOrDefault("ENV", "staging")
+
+	debug := getBooleanOrDefault("DEBUG", false)
+
+	if debug {
+		DebugMode = true
+	}
 
 	dbMasterConnection := DatabaseConnectionConfig{
 		Host:     getStringOrPanic("DATABASE_MASTER_HOST"),
@@ -151,6 +166,10 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 		CurrencyConverterAPIKey:  getStringOrPanic("CURRENCY_CONVERTER_API_KEY"),
 	}
 
+	telegramConfig := TelegramConfig{
+		TelegramBotAPIKey: getStringOrPanic("TELEGRAM_BOT_API_KEY"),
+	}
+
 	return &Config{
 		ENV:                     env,
 		DB:                      db,
@@ -162,6 +181,7 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 		WhatsAppConfig:          whatsAppConfig,
 		CurrencyConfig:          currencyConfig,
 		CurrencyConverterConfig: currencyConverterConfig,
+		TelegramConfig:          telegramConfig,
 	}, nil
 }
 
@@ -173,6 +193,11 @@ func getIntOrDefault(key string, defaultValue int) int {
 func getStringOrDefault(key, defaultValue string) string {
 	viper.SetDefault(key, defaultValue)
 	return viper.GetString(key)
+}
+
+func getBooleanOrDefault(key string, defaultValue bool) bool {
+	viper.SetDefault(key, defaultValue)
+	return viper.GetBool(key)
 }
 
 func getStringOrPanic(key string) string {

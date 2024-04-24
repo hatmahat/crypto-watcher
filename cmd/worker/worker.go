@@ -3,12 +3,13 @@ package worker
 import (
 	"crypto-watcher-backend/internal/app"
 	"crypto-watcher-backend/internal/config"
-	"fmt"
 	"net/http"
+
+	"github.com/sirupsen/logrus"
 )
 
 func Start(cfg *config.Config) {
-	fmt.Println("Starting crypto-watcher worker...")
+	logrus.Info("Starting crypto-watcher worker...")
 	httpServer := http.Server{}
 	app.RunWorker(&httpServer, cfg)
 }

@@ -2,10 +2,10 @@ package worker
 
 import (
 	"context"
+	"crypto-watcher-backend/internal/config"
 	"crypto-watcher-backend/internal/constant/worker_const"
 	"crypto-watcher-backend/internal/service"
 	"crypto-watcher-backend/pkg/logger"
-	"fmt"
 
 	"github.com/sirupsen/logrus"
 )
@@ -41,11 +41,16 @@ func (cw *CryptoWorker) GenerateWorkerParameters() []JobParameter {
 
 func (cw *CryptoWorker) CryptoWatcher(ctx context.Context) {
 	const funcName = "[internal][app][worker]CryptoWatcher"
-	logger.LogWithCustomTime(fmt.Sprintf("%s: Running", funcName))
+	if config.DebugMode {
+		logger.LogWithCustomTime(">>Running<< Crypto Watcher Service")
+	}
 	err := cw.cryptoService.CryptoWatcher(ctx)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
 		}).Errorf("%s: Error", funcName)
+	}
+	if config.DebugMode {
+		logger.LogWithCustomTime("<<Stopped>> Crypto Watcher Service ")
 	}
 }
