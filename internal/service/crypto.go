@@ -11,6 +11,7 @@ import (
 	"crypto-watcher-backend/pkg/coingecko_api"
 	"crypto-watcher-backend/pkg/currency_converter_api"
 	"crypto-watcher-backend/pkg/format"
+	"crypto-watcher-backend/pkg/telegram_bot_api"
 	"crypto-watcher-backend/pkg/validation"
 	"crypto-watcher-backend/pkg/whatsapp_cloud_api"
 	"database/sql"
@@ -31,6 +32,7 @@ type (
 		Coin              coin_api.Coin
 		CurrencyConverter currency_converter_api.CurrencyConverter
 		WaMessaging       whatsapp_cloud_api.WaMessaging
+		TelegramBot       telegram_bot_api.TelegramBot
 		Cfg               *config.Config
 		CurrencyRateRepo  repository.CurrencyRateRepo
 		AssetPriceRepo    repository.AssetPriceRepo
@@ -41,6 +43,7 @@ type (
 		coin              coin_api.Coin
 		currencyConverter currency_converter_api.CurrencyConverter
 		waMessaging       whatsapp_cloud_api.WaMessaging
+		telegramBot       telegram_bot_api.TelegramBot
 		cfg               *config.Config
 		currencyRateRepo  repository.CurrencyRateRepo
 		assetPriceRepo    repository.AssetPriceRepo
@@ -53,6 +56,7 @@ func NewCryptoService(param CryptoServiceParam) CryptoService {
 		coin:              param.Coin,
 		currencyConverter: param.CurrencyConverter,
 		waMessaging:       param.WaMessaging,
+		telegramBot:       param.TelegramBot,
 		cfg:               param.Cfg,
 		currencyRateRepo:  param.CurrencyRateRepo,
 		assetPriceRepo:    param.AssetPriceRepo,
@@ -62,7 +66,6 @@ func NewCryptoService(param CryptoServiceParam) CryptoService {
 func (cs *cryptoService) CryptoWatcher(ctx context.Context) error {
 	const funcName = "[internal][service]CryptoWatcher"
 
-	// TODO (improvement): not only support bitcoin, get from user preference
 	bitcoinPriceUSD, err := cs.fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx, asset_const.BTC)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
@@ -83,24 +86,6 @@ func (cs *cryptoService) CryptoWatcher(ctx context.Context) error {
 	usdPrice := format.ThousandSepartor(int64(*bitcoinPriceUSD), ',')
 	idrPrice := format.ThousandSepartor(int64(*bitcoinPriceUSD*(*rateUSDToIDR)), '.')
 	fmt.Printf("USD %s\nIDR %s\n", usdPrice, idrPrice)
-
-	// parameters := []string{ // TODO: make parameters dynamic
-	// 	"increased",
-	// 	"3.5",
-	// 	usdPrice,
-	// 	idrPrice,
-	// 	"up",
-	// 	"1,400",
-	// 	"yesterday",
-	// 	"20.000.000",
-	// 	format.GetCurrentTimeInFullFormat()}
-	// _, err = cs.waMessaging.SendWaMessageByTemplate(ctx, cs.cfg.WhatsAppTestPhoneNumber, whatsapp_cloud_api.BitcoinPriceAlert, parameters)
-	// if err != nil {
-	// 	logrus.WithFields(logrus.Fields{
-	// 		"err": err.Error(),
-	// 	}).Errorf("%s: Error Sending WA Message", funcName)
-	// 	return err
-	// }
 
 	return nil
 }
@@ -223,4 +208,55 @@ func (cs *cryptoService) fetchRateFromCurrencyConverterAPIAndStore(ctx context.C
 	}
 
 	return currencyRate, nil
+}
+
+func (cs *cryptoService) DailyPriceReport(ctx context.Context, usdPrice, idrPrice string) error {
+	const funcName = "[internal][service]DailyPriceReport"
+
+	// TODO alert every x AM
+
+	// TODO (improvement): not only support bitcoin, get from user preference
+
+	percentageIncrease := "3.5"
+	currentPriceUSD := "70,789"
+	currentPriceIDR := "1,141,897,359"
+	priceChangeUSD := "1,400"
+	priceChangeIDR := "20,000,000"
+	formattedDateTime := "Friday, 12 April 2024 - 05:50 PM"
+
+	text := fmt.Sprintf(telegram_bot_api.Bitcoin_price_alert_template,
+		percentageIncrease,
+		currentPriceUSD,
+		currentPriceIDR,
+		priceChangeUSD,
+		priceChangeIDR,
+		formattedDateTime,
+	)
+	err := cs.telegramBot.SendTelegramMessageByMessageId(513439237, text) // TODO: get chatId from users table (create new migration)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err.Error(),
+		}).Errorf("%s: Error Sending Message Via Telegram", funcName)
+		return err
+	}
+
+	// parameters := []string{
+	// 	"increased",
+	// 	"3.5",
+	// 	usdPrice,
+	// 	idrPrice,
+	// 	"up",
+	// 	"1,400",
+	// 	"yesterday",
+	// 	"20.000.000",
+	// 	format.GetCurrentTimeInFullFormat()}
+	// _, err := cs.waMessaging.SendWaMessageByTemplate(ctx, cs.cfg.WhatsAppTestPhoneNumber, whatsapp_cloud_api.BitcoinPriceAlert, parameters)
+	// if err != nil {
+	// 	logrus.WithFields(logrus.Fields{
+	// 		"err": err.Error(),
+	// 	}).Errorf("%s: Error Sending WA Message", funcName)
+	// 	return err
+	// }
+
+	return nil
 }

@@ -31,6 +31,7 @@ var (
 		NewCurrency,
 		NewCurrencyConverter,
 		NewWaMessaging,
+		NewTelegramBot,
 	)
 
 	repoSet = wire.NewSet(

@@ -23,6 +23,7 @@ func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client)
 	coin := NewCoin(cfg)
 	currencyConverter := NewCurrencyConverter(cfg)
 	waMessaging := NewWaMessaging(cfg)
+	telegramBot := NewTelegramBot(cfg)
 	v := cfg.DB
 	v2 := InitializeDB(v)
 	currencyRateRepoParam := repository.CurrencyRateRepoParam{
@@ -38,6 +39,7 @@ func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client)
 		Coin:              coin,
 		CurrencyConverter: currencyConverter,
 		WaMessaging:       waMessaging,
+		TelegramBot:       telegramBot,
 		Cfg:               cfg,
 		CurrencyRateRepo:  currencyRateRepo,
 		AssetPriceRepo:    assetPriceRepo,
@@ -64,6 +66,7 @@ var (
 		NewCurrency,
 		NewCurrencyConverter,
 		NewWaMessaging,
+		NewTelegramBot,
 	)
 
 	repoSet = wire.NewSet(repository.NewCurrencyRateRepo, wire.Struct(new(repository.CurrencyRateRepoParam), "*"), repository.NewAssetPriceRepo, wire.Struct(new(repository.AssetPriceRepoParam), "*"))
