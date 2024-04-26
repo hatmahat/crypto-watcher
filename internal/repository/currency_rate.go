@@ -52,7 +52,7 @@ func (cr *currencyRateRepo) GetCurrencyRateByDate(ctx context.Context, currencyP
 		logrus.WithFields(logrus.Fields{
 			"err":  err.Error(),
 			"date": date,
-		}).Errorf("%s: Query Error [%s]", funcName, err)
+		}).Errorf("%s: Query Error", funcName)
 		return nil, err
 	}
 	return &result, nil
@@ -65,7 +65,7 @@ func (cr *currencyRateRepo) InsertCurrencyRate(ctx context.Context, currencyRate
 		logrus.WithFields(logrus.Fields{
 			"err":           err.Error(),
 			"currency_rate": currencyRate,
-		}).Errorf("%s: Error Inserting currency_rates [%s]", funcName, err)
+		}).Errorf("%s: Error Inserting currency_rates", funcName)
 		return err
 	}
 	rowsAffected, _ := result.RowsAffected()

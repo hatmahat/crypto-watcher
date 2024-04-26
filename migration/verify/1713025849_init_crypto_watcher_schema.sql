@@ -5,49 +5,54 @@ BEGIN;
 SELECT
     id,
     uuid,
+    created_at,
+    updated_at,
     username,
     email,
     phone_number,
-    created_at,
-    updated_at
+    telegram_chat_id
 FROM
     users;
 
 SELECT
     id,
+    created_at,
     currency_pair,
-    rate,
-    created_at
+    rate
 FROM
     currency_rates;
 
 SELECT
     id,
+    created_at,
     asset_type,
     asset_code,
-    price_usd,
-    created_at
+    price_usd
 FROM
     asset_prices;
 
 SELECT
     id,
+    created_at,
+    updated_at,
     user_id,
+    preference_type,
     asset_type,
     asset_code,
     threshold_percentage,
     observation_period,
-    created_at,
-    updated_at
+    report_time,
+    is_active
 FROM
     user_preferences;
 
 SELECT
     id,
+    created_at,
     user_id,
     preference_id,
-    parameters,
-    created_at
+    status,
+    parameters
 FROM
     notifications;
 

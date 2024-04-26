@@ -45,5 +45,5 @@ func (t *telegramBot) SendTelegramMessageByMessageId(chatId int64, message strin
 		return err
 	}
 
-	return err
+	return nil
 }
