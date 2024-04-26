@@ -36,12 +36,12 @@ func NewAssetPriceRepo(param AssetPriceRepoParam) AssetPriceRepo {
 
 func (ap *assetPriceRepo) InsertAssetPrice(ctx context.Context, assetPrice entity.AssetPrice) error {
 	const funcName = "[internal][repository]InsertAssetPrice"
-	result, err := ap.db.Exec(insertAssetPriceQuery, assetPrice.AssetType, assetPrice.AssetCode, assetPrice.PriceUsd)
+	result, err := ap.db.Exec(insertAssetPriceQuery, assetPrice.AssetType, assetPrice.AssetCode, assetPrice.PriceUSD)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":         err.Error(),
 			"asset_price": assetPrice,
-		}).Errorf("%s: Error Inserting asset_price [%s]", funcName, err)
+		}).Errorf("%s: Error Inserting asset_price", funcName)
 		return err
 	}
 	rowsAffected, _ := result.RowsAffected()

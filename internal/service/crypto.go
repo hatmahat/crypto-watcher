@@ -70,7 +70,7 @@ func (cs *cryptoService) CryptoWatcher(ctx context.Context) error {
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
-		}).Errorf("%s: Error Fetching & Storing Bitcoin Price [%s]", funcName, err)
+		}).Errorf("%s: Error Fetching & Storing Bitcoin Price", funcName)
 		return err
 	}
 
@@ -79,13 +79,11 @@ func (cs *cryptoService) CryptoWatcher(ctx context.Context) error {
 		logrus.WithFields(logrus.Fields{
 			"err":           err.Error(),
 			"currency_code": currency_const.IDR,
-		}).Errorf("%s: Error Getting Currency Price from Currency API [%s]", funcName, err)
+		}).Errorf("%s: Error Getting Currency Price from Currency API", funcName)
 		return err
 	}
 
-	usdPrice := format.ThousandSepartor(int64(*bitcoinPriceUSD), ',')
-	idrPrice := format.ThousandSepartor(int64(*bitcoinPriceUSD*(*rateUSDToIDR)), '.')
-	fmt.Printf("USD %s\nIDR %s\n", usdPrice, idrPrice)
+	go cs.DailyBitcoinPriceReport(ctx, bitcoinPriceUSD, rateUSDToIDR)
 
 	return nil
 }
@@ -108,21 +106,21 @@ func (cs *cryptoService) fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx context.Co
 		logrus.WithFields(logrus.Fields{
 			"err":               err.Error(),
 			"coin_gecko_params": coinGeckoParams,
-		}).Errorf("%s: Error Getting Current Price from Coin Gecko [%s]", funcName, err)
+		}).Errorf("%s: Error Getting Current Price from Coin Gecko", funcName)
 		return nil, err
 	}
 
 	assetPrice := entity.AssetPrice{
 		AssetType: asset_const.CRYPTO,
 		AssetCode: assetCode,
-		PriceUsd:  float64(bitcoinPrice.Bitcoin.USD),
+		PriceUSD:  float64(bitcoinPrice.Bitcoin.USD),
 	}
 	err = cs.assetPriceRepo.InsertAssetPrice(ctx, assetPrice)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":         err.Error(),
 			"asset_price": assetPrice,
-		}).Errorf("%s: Error Inserting Asset Price [%s]", funcName, err)
+		}).Errorf("%s: Error Inserting Asset Price", funcName)
 		return nil, err
 	}
 
@@ -138,7 +136,7 @@ func (cs cryptoService) convertCurrencyFromUSD(ctx context.Context, currencyCode
 		logrus.WithFields(logrus.Fields{
 			"err":  err.Error(),
 			"time": time.Now(),
-		}).Errorf("%s: Error Getting Currency Rate from DB [%s]", funcName, err)
+		}).Errorf("%s: Error Getting Currency Rate from DB", funcName)
 		return nil, err
 	}
 
@@ -148,7 +146,7 @@ func (cs cryptoService) convertCurrencyFromUSD(ctx context.Context, currencyCode
 			logrus.WithFields(logrus.Fields{
 				"err":           err.Error(),
 				"currency_code": currencyCode,
-			}).Errorf("%s: Error Fetching & Storing Currency Rate [%s]", funcName, err)
+			}).Errorf("%s: Error Fetching & Storing Currency Rate", funcName)
 			return nil, err
 		}
 	}
@@ -182,7 +180,7 @@ func (cs *cryptoService) fetchRateFromCurrencyConverterAPIAndStore(ctx context.C
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
-		}).Errorf("%s: Error Getting Currency Price from Currency API [%s]", funcName, err)
+		}).Errorf("%s: Error Getting Currency Price from Currency API", funcName)
 		return nil, err
 	}
 
@@ -203,60 +201,46 @@ func (cs *cryptoService) fetchRateFromCurrencyConverterAPIAndStore(ctx context.C
 	err = cs.currencyRateRepo.InsertCurrencyRate(ctx, *currencyRate)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
-			"err": err.Error(),
-		}).Errorf("%s: Error Inserting Currency Rate to DB [%s]", funcName, err)
+			"err":           err.Error(),
+			"currency_rate": currencyRate,
+		}).Errorf("%s: Error Inserting Currency Rate to DB", funcName)
 	}
 
 	return currencyRate, nil
 }
 
-func (cs *cryptoService) DailyPriceReport(ctx context.Context, usdPrice, idrPrice string) error {
-	const funcName = "[internal][service]DailyPriceReport"
+func (cs *cryptoService) DailyBitcoinPriceReport(ctx context.Context, bitcoinPriceUSD, rateUSDToIDR *int) {
 
 	// TODO alert every x AM
 
 	// TODO (improvement): not only support bitcoin, get from user preference
+	var chatId int64 = 513439237
 
-	percentageIncrease := "3.5"
-	currentPriceUSD := "70,789"
-	currentPriceIDR := "1,141,897,359"
-	priceChangeUSD := "1,400"
-	priceChangeIDR := "20,000,000"
-	formattedDateTime := "Friday, 12 April 2024 - 05:50 PM"
+	// fmt.Println(time.Now().Format("15:04"))
 
-	text := fmt.Sprintf(telegram_bot_api.Bitcoin_price_alert_template,
-		percentageIncrease,
-		currentPriceUSD,
-		currentPriceIDR,
-		priceChangeUSD,
-		priceChangeIDR,
-		formattedDateTime,
-	)
-	err := cs.telegramBot.SendTelegramMessageByMessageId(513439237, text) // TODO: get chatId from users table (create new migration)
+	usdPrice := format.ThousandSepartor(int64(*bitcoinPriceUSD), ',')
+	idrPrice := format.ThousandSepartor(int64(*bitcoinPriceUSD*(*rateUSDToIDR)), '.')
+	fmt.Printf("USD %s\nIDR %s\n", usdPrice, idrPrice)
+
+	message := telegram_bot_api.BitcoinPriceAlert{
+		PercentageIncrease: "3.5",
+		CurrentPriceUSD:    usdPrice,
+		CurrentPriceIDR:    idrPrice,
+		PriceChangeUSD:     "1,400",
+		PriceChangeIDR:     "20,000,000",
+		FormattedDateTime:  format.GetCurrentTimeInFullFormat(),
+	}
+	go cs.sendTelegramMessage(chatId, &message)
+}
+
+func (cs *cryptoService) sendTelegramMessage(chatId int64, message telegram_bot_api.Message) {
+	const funcName = "[internal][service]sendTelegramMessage"
+	err := cs.telegramBot.SendTelegramMessageByMessageId(chatId, message.Message())
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
-			"err": err.Error(),
+			"err":     err.Error(),
+			"message": message.Message(),
+			"chat_id": chatId,
 		}).Errorf("%s: Error Sending Message Via Telegram", funcName)
-		return err
 	}
-
-	// parameters := []string{
-	// 	"increased",
-	// 	"3.5",
-	// 	usdPrice,
-	// 	idrPrice,
-	// 	"up",
-	// 	"1,400",
-	// 	"yesterday",
-	// 	"20.000.000",
-	// 	format.GetCurrentTimeInFullFormat()}
-	// _, err := cs.waMessaging.SendWaMessageByTemplate(ctx, cs.cfg.WhatsAppTestPhoneNumber, whatsapp_cloud_api.BitcoinPriceAlert, parameters)
-	// if err != nil {
-	// 	logrus.WithFields(logrus.Fields{
-	// 		"err": err.Error(),
-	// 	}).Errorf("%s: Error Sending WA Message", funcName)
-	// 	return err
-	// }
-
-	return nil
 }

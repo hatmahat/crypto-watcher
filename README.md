@@ -3,7 +3,7 @@
 ### Goals
 - Monitor cryptocurrencies
 - Report cryptocurrencies
-- Send notification via WA or Telegram every extreme ups and downs of cryptocurrencies
+- Send notifications via Telegram
 
 ### Database Entity Relationship Diagram  
 

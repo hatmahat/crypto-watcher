@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: cryptowatcher_appuser
       POSTGRES_PASSWORD: watcher123
     ports:
-      - "5432:5432"
+      - "5440:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
