@@ -1,9 +1,9 @@
 ## Crypto Watcher - Backend
 
 ### Goals
-- Monitor cryptocurrencies
-- Report cryptocurrencies
-- Send notifications via Telegram
+- Monitor cryptocurrency prices
+- Alert cryptocurrency prices via Telegram
+- Custom alerting by user preferences
 
 ### Database Entity Relationship Diagram  
 
