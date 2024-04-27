@@ -21,9 +21,7 @@ type (
 	}
 )
 
-func NewCoinGecko(host string) CoinGecko {
-	httpClient := &http.Client{}
-
+func NewCoinGecko(host string, httpClient *http.Client) CoinGecko {
 	return &coinGecko{
 		host:       host,
 		httpClient: httpClient,

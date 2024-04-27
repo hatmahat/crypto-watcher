@@ -25,9 +25,7 @@ type (
 	}
 )
 
-func NewWaMessaging(host, apiKey, phoneNumberId string) WaMessaging {
-	httpClient := &http.Client{}
-
+func NewWaMessaging(host, apiKey, phoneNumberId string, httpClient *http.Client) WaMessaging {
 	return &waMessaging{
 		host:          host,
 		apiKey:        apiKey,

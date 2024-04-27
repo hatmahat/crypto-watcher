@@ -23,9 +23,7 @@ type (
 	}
 )
 
-func NewCoin(host, apiKey string) Coin {
-	httpClient := &http.Client{}
-
+func NewCoin(host, apiKey string, httpClient *http.Client) Coin {
 	return &coin{
 		host:       host,
 		apiKey:     apiKey,
