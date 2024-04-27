@@ -23,14 +23,15 @@ type (
 	}
 
 	GetUserFilter struct {
-		ReportTime string
-		AssetType  string
-		AssetCode  string
+		ReportTime     string
+		AssetType      string
+		AssetCode      string
+		PreferenceType string
 	}
 )
 
 const (
-	getUserByReportTimeQuery = `SELECT u.id, u.telegram_chat_id, up.id preference_id FROM users u INNER JOIN user_preferences up ON up.user_id = u.id WHERE up.report_time = $1 AND asset_type = $2 AND asset_code = $3`
+	getUserByReportTimeQuery = `SELECT u.id, u.telegram_chat_id, up.id preference_id FROM users u INNER JOIN user_preferences up ON up.user_id = u.id WHERE up.report_time = $1 AND asset_type = $2 AND asset_code = $3 AND preference_type = $4`
 )
 
 func NewUserRepo(param UserRepoParam) UserRepo {
@@ -45,7 +46,7 @@ func (ur *userRepo) GetUserAndUserPreferenceByReportTime(ctx context.Context, fi
 		result []helper.UserAndUserPreference
 		err    error
 	)
-	err = ur.db.Select(&result, getUserByReportTimeQuery, filter.ReportTime, filter.AssetType, filter.AssetCode)
+	err = ur.db.Select(&result, getUserByReportTimeQuery, filter.ReportTime, filter.AssetType, filter.AssetCode, filter.PreferenceType)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":         err.Error(),
