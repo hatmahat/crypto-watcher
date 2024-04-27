@@ -39,6 +39,8 @@ var (
 		wire.Struct(new(repository.CurrencyRateRepoParam), "*"),
 		repository.NewAssetPriceRepo,
 		wire.Struct(new(repository.AssetPriceRepoParam), "*"),
+		repository.NewUserRepo,
+		wire.Struct(new(repository.UserRepoParam), "*"),
 	)
 
 	serviceSet = wire.NewSet(

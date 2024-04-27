@@ -5,7 +5,7 @@ Crypto Watcher Backend is a dynamic monitoring & alerting system designed to tra
 ### Features
 - **Monitor Cryptocurrencies**: Continuously track the price and performance of various cryptocurrencies.
 - **Report Cryptocurrencies**: Generate detailed reports on cryptocurrency metrics, providing insights into historical performance and current status.
-- **Send Notifications via Telegram**: Leverage Telegram to send instant alerts about critical price changes and market news to users.
+- **Send Notifications via Telegram**: Leverage Telegram to send instant alerts about critical price changes based on user preference.
 
 ### Database Entity Relationship Diagram  
 
