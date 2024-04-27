@@ -18,7 +18,7 @@ const (
 	- The price in <b>USD</b> is <b>up $%s</b> from yesterday.
 	- The price in <b>IDR</b> is <b>up Rp%s</b> from yesterday.
 
-	<b>Date & Time:</b> %s
+	<b>%s</b>
 	`
 
 	bitcoin_price_alert_simple_template = `
@@ -30,6 +30,6 @@ const (
 	- USD: <b>$%s</b>
 	- IDR: <b>Rp%s</b>
 
-	<b>Date & Time:</b> %s
+	<b>%s</b>
 	`
 )
