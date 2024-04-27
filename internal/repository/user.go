@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"crypto-watcher-backend/internal/config"
-	"crypto-watcher-backend/internal/entity"
+	"crypto-watcher-backend/internal/entity/helper"
 	"crypto-watcher-backend/pkg/database"
 
 	"github.com/sirupsen/logrus"
@@ -11,7 +11,7 @@ import (
 
 type (
 	UserRepo interface {
-		GetUserByReportTime(ctx context.Context, filter GetUserFilter) ([]entity.User, error)
+		GetUserAndUserPreferenceByReportTime(ctx context.Context, filter GetUserFilter) ([]helper.UserAndUserPreference, error)
 	}
 
 	userRepo struct {
@@ -30,9 +30,7 @@ type (
 )
 
 const (
-	getUserByReportTime = `select u.id, u.telegram_chat_id from users u
-	inner join user_preferences up on up.user_id = u.id
-	where up.report_time = $1 and asset_type = $2 and asset_code = $3`
+	getUserByReportTimeQuery = `SELECT u.id, u.telegram_chat_id, up.id preference_id FROM users u INNER JOIN user_preferences up ON up.user_id = u.id WHERE up.report_time = $1 AND asset_type = $2 AND asset_code = $3`
 )
 
 func NewUserRepo(param UserRepoParam) UserRepo {
@@ -41,13 +39,13 @@ func NewUserRepo(param UserRepoParam) UserRepo {
 	}
 }
 
-func (ur *userRepo) GetUserByReportTime(ctx context.Context, filter GetUserFilter) ([]entity.User, error) {
+func (ur *userRepo) GetUserAndUserPreferenceByReportTime(ctx context.Context, filter GetUserFilter) ([]helper.UserAndUserPreference, error) {
 	const funcName = "[internal][repository]GetUserByReportTime"
 	var (
-		result []entity.User
+		result []helper.UserAndUserPreference
 		err    error
 	)
-	err = ur.db.Select(&result, getUserByReportTime, filter.ReportTime, filter.AssetType, filter.AssetCode)
+	err = ur.db.Select(&result, getUserByReportTimeQuery, filter.ReportTime, filter.AssetType, filter.AssetCode)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":         err.Error(),

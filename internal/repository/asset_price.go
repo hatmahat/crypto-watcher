@@ -46,7 +46,7 @@ func (ap *assetPriceRepo) InsertAssetPrice(ctx context.Context, assetPrice entit
 	}
 	rowsAffected, _ := result.RowsAffected()
 	if rowsAffected != 1 {
-		return fmt.Errorf("%s: Insert currency_rates failed [%s]", funcName, err)
+		return fmt.Errorf("%s: Insert currency_rates failed [%d]", funcName, rowsAffected)
 	}
 	return nil
 }

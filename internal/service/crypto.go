@@ -26,6 +26,7 @@ type (
 		CurrencyRateRepo  repository.CurrencyRateRepo
 		AssetPriceRepo    repository.AssetPriceRepo
 		UserRepo          repository.UserRepo
+		NotifRepo         repository.NotificationRepo
 	}
 
 	cryptoService struct {
@@ -36,6 +37,7 @@ type (
 		currencyRateRepo  repository.CurrencyRateRepo
 		assetPriceRepo    repository.AssetPriceRepo
 		userRepo          repository.UserRepo
+		notifRepo         repository.NotificationRepo
 	}
 )
 
@@ -48,6 +50,7 @@ func NewCryptoService(param CryptoServiceParam) CryptoService {
 		currencyRateRepo:  param.CurrencyRateRepo,
 		assetPriceRepo:    param.AssetPriceRepo,
 		userRepo:          param.UserRepo,
+		notifRepo:         param.NotifRepo,
 	}
 }
 

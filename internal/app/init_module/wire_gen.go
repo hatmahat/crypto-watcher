@@ -36,6 +36,10 @@ func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client)
 		DB: v2,
 	}
 	userRepo := repository.NewUserRepo(userRepoParam)
+	notificationRepoParam := repository.NotificationRepoParam{
+		DB: v2,
+	}
+	notificationRepo := repository.NewNotificationRepo(notificationRepoParam)
 	cryptoServiceParam := service.CryptoServiceParam{
 		Cfg:               cfg,
 		CoinGecko:         coinGecko,
@@ -44,6 +48,7 @@ func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client)
 		CurrencyRateRepo:  currencyRateRepo,
 		AssetPriceRepo:    assetPriceRepo,
 		UserRepo:          userRepo,
+		NotifRepo:         notificationRepo,
 	}
 	cryptoService := service.NewCryptoService(cryptoServiceParam)
 	watcherWorkerParam := worker.WatcherWorkerParam{
@@ -70,7 +75,7 @@ var (
 		NewTelegramBot,
 	)
 
-	repoSet = wire.NewSet(repository.NewCurrencyRateRepo, wire.Struct(new(repository.CurrencyRateRepoParam), "*"), repository.NewAssetPriceRepo, wire.Struct(new(repository.AssetPriceRepoParam), "*"), repository.NewUserRepo, wire.Struct(new(repository.UserRepoParam), "*"))
+	repoSet = wire.NewSet(repository.NewCurrencyRateRepo, wire.Struct(new(repository.CurrencyRateRepoParam), "*"), repository.NewAssetPriceRepo, wire.Struct(new(repository.AssetPriceRepoParam), "*"), repository.NewUserRepo, wire.Struct(new(repository.UserRepoParam), "*"), repository.NewNotificationRepo, wire.Struct(new(repository.NotificationRepoParam), "*"))
 
 	serviceSet = wire.NewSet(service.NewCryptoService, wire.Struct(new(service.CryptoServiceParam), "*"))
 
