@@ -15,6 +15,12 @@ type (
 		PriceChangeIDR     string
 		FormattedDateTime  string
 	}
+
+	BitcoinPriceAlertSimple struct {
+		CurrentPriceUSD   string
+		CurrentPriceIDR   string
+		FormattedDateTime string
+	}
 )
 
 func (b *BitcoinPriceAlert) Message() string {
@@ -25,6 +31,15 @@ func (b *BitcoinPriceAlert) Message() string {
 		b.CurrentPriceIDR,
 		b.PriceChangeUSD,
 		b.PriceChangeIDR,
+		b.FormattedDateTime,
+	)
+}
+
+func (b *BitcoinPriceAlertSimple) Message() string {
+	return fmt.Sprintf(
+		bitcoin_price_alert_simple_template,
+		b.CurrentPriceUSD,
+		b.CurrentPriceIDR,
 		b.FormattedDateTime,
 	)
 }
