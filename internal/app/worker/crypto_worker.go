@@ -33,7 +33,7 @@ func (cw *CryptoWorker) GenerateWorkerParameters() []JobParameter {
 	return []JobParameter{
 		{
 			Name:     worker_const.CryptoWatcher,
-			TimeSpec: cw.config.SchedulerBitCoinFetch,
+			TimeSpec: cw.config.SchedulerCryptoFetch,
 			Handler:  cw.CryptoWatcher,
 		},
 	}

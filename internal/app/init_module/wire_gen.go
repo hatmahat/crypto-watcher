@@ -20,9 +20,7 @@ import (
 
 func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client) *WorkerWrapper {
 	coinGecko := NewCoinGecko(cfg)
-	coin := NewCoin(cfg)
 	currencyConverter := NewCurrencyConverter(cfg)
-	waMessaging := NewWaMessaging(cfg)
 	telegramBot := NewTelegramBot(cfg)
 	v := cfg.DB
 	v2 := InitializeDB(v)
@@ -34,15 +32,18 @@ func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client)
 		DB: v2,
 	}
 	assetPriceRepo := repository.NewAssetPriceRepo(assetPriceRepoParam)
+	userRepoParam := repository.UserRepoParam{
+		DB: v2,
+	}
+	userRepo := repository.NewUserRepo(userRepoParam)
 	cryptoServiceParam := service.CryptoServiceParam{
-		CoinGecko:         coinGecko,
-		Coin:              coin,
-		CurrencyConverter: currencyConverter,
-		WaMessaging:       waMessaging,
-		TelegramBot:       telegramBot,
 		Cfg:               cfg,
+		CoinGecko:         coinGecko,
+		CurrencyConverter: currencyConverter,
+		TelegramBot:       telegramBot,
 		CurrencyRateRepo:  currencyRateRepo,
 		AssetPriceRepo:    assetPriceRepo,
+		UserRepo:          userRepo,
 	}
 	cryptoService := service.NewCryptoService(cryptoServiceParam)
 	watcherWorkerParam := worker.WatcherWorkerParam{
@@ -69,7 +70,7 @@ var (
 		NewTelegramBot,
 	)
 
-	repoSet = wire.NewSet(repository.NewCurrencyRateRepo, wire.Struct(new(repository.CurrencyRateRepoParam), "*"), repository.NewAssetPriceRepo, wire.Struct(new(repository.AssetPriceRepoParam), "*"))
+	repoSet = wire.NewSet(repository.NewCurrencyRateRepo, wire.Struct(new(repository.CurrencyRateRepoParam), "*"), repository.NewAssetPriceRepo, wire.Struct(new(repository.AssetPriceRepoParam), "*"), repository.NewUserRepo, wire.Struct(new(repository.UserRepoParam), "*"))
 
 	serviceSet = wire.NewSet(service.NewCryptoService, wire.Struct(new(service.CryptoServiceParam), "*"))
 

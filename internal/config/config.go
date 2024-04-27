@@ -40,7 +40,7 @@ type (
 	}
 
 	SchedulerConfig struct {
-		SchedulerBitCoinFetch string
+		SchedulerCryptoFetch string
 	}
 
 	CoinConfig struct {
@@ -137,7 +137,7 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 	}
 
 	schedulerConfig := SchedulerConfig{
-		SchedulerBitCoinFetch: getStringOrPanic("SCHEDULER_BITCOIN_FETCH"),
+		SchedulerCryptoFetch: getStringOrPanic("SCHEDULER_CRYPTO_FETCH"),
 	}
 
 	coinConfig := CoinConfig{

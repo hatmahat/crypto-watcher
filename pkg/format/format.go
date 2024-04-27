@@ -31,10 +31,14 @@ func ThousandSepartor(n int64, separator byte) string {
 
 }
 
-func GetCurrentTimeInFullFormat() string {
+func GetFormattedDateTimeWithDay() string {
 	return time.Now().Format("Monday, 2 January 2006 - 03:04 PM")
 }
 
-func GetCurrentTimeInCompactFormat() string {
+func GetCompactDateTime() string {
 	return time.Now().Format("2006-01-02 15:04:05")
+}
+
+func GetSimpleTime() string {
+	return time.Now().Format("15:04")
 }
