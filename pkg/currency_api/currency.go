@@ -22,9 +22,7 @@ type (
 	}
 )
 
-func NewCurrency(host, apiKey string) Currency {
-	httpClient := &http.Client{}
-
+func NewCurrency(host, apiKey string, httpClient *http.Client) Currency {
 	return &currency{
 		host:       host,
 		apiKey:     apiKey,

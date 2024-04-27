@@ -23,9 +23,7 @@ type (
 	}
 )
 
-func NewCurrencyConverter(host, apiKey string) CurrencyConverter {
-	httpClient := &http.Client{}
-
+func NewCurrencyConverter(host, apiKey string, httpClient *http.Client) CurrencyConverter {
 	return &currencyConverter{
 		host:       host,
 		apiKey:     apiKey,

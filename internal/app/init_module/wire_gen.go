@@ -19,8 +19,8 @@ import (
 // Injectors from wire.go:
 
 func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client) *WorkerWrapper {
-	coinGecko := NewCoinGecko(cfg)
-	currencyConverter := NewCurrencyConverter(cfg)
+	coinGecko := NewCoinGecko(cfg, httpClient)
+	currencyConverter := NewCurrencyConverter(cfg, httpClient)
 	telegramBot := NewTelegramBot(cfg)
 	v := cfg.DB
 	v2 := InitializeDB(v)
