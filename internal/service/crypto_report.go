@@ -36,13 +36,10 @@ func (cs *cryptoService) dailyBitcoinPriceReport(ctx context.Context, bitcoinPri
 	idrPrice := format.ThousandSepartor(int64(*bitcoinPriceUSD*(*rateUSDToIDR)), '.')
 	fmt.Printf("USD %s\nIDR %s\n", usdPrice, idrPrice)
 
-	message := telegram_bot_api.BitcoinPriceAlert{
-		PercentageIncrease: "3.5",
-		CurrentPriceUSD:    usdPrice,
-		CurrentPriceIDR:    idrPrice,
-		PriceChangeUSD:     "1,400",
-		PriceChangeIDR:     "20,000,000",
-		FormattedDateTime:  format.GetFormattedDateTimeWithDay(),
+	message := telegram_bot_api.BitcoinPriceAlertSimple{
+		CurrentPriceUSD:   usdPrice,
+		CurrentPriceIDR:   idrPrice,
+		FormattedDateTime: format.GetFormattedDateTimeWithDay(),
 	}
 	for _, user := range users {
 		if user.TelegramChatId == nil {

@@ -20,4 +20,16 @@ const (
 
 	<b>Date & Time:</b> %s
 	`
+
+	bitcoin_price_alert_simple_template = `
+	<b>🚨 Bitcoin Price Alert</b>
+	
+	Trigger: <b>Bitcoin</b> daily update
+			
+	<b>Current Price:</b> 
+	- USD: <b>$%s</b>
+	- IDR: <b>Rp%s</b>
+
+	<b>Date & Time:</b> %s
+	`
 )
