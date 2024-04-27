@@ -70,7 +70,7 @@ func (cr *currencyRateRepo) InsertCurrencyRate(ctx context.Context, currencyRate
 	}
 	rowsAffected, _ := result.RowsAffected()
 	if rowsAffected != 1 {
-		return fmt.Errorf("%s: Insert currency_rates failed [%s]", funcName, err)
+		return fmt.Errorf("%s: Insert currency_rates failed [%d]", funcName, rowsAffected)
 	}
 	return nil
 }

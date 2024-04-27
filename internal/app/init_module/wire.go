@@ -41,6 +41,8 @@ var (
 		wire.Struct(new(repository.AssetPriceRepoParam), "*"),
 		repository.NewUserRepo,
 		wire.Struct(new(repository.UserRepoParam), "*"),
+		repository.NewNotificationRepo,
+		wire.Struct(new(repository.NotificationRepoParam), "*"),
 	)
 
 	serviceSet = wire.NewSet(

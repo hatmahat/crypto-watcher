@@ -3,6 +3,9 @@ package service
 import (
 	"context"
 	"crypto-watcher-backend/internal/constant/asset_const"
+	"crypto-watcher-backend/internal/constant/notification_const"
+	"crypto-watcher-backend/internal/entity"
+	"crypto-watcher-backend/internal/entity/helper"
 	"crypto-watcher-backend/internal/repository"
 	"crypto-watcher-backend/pkg/format"
 	"crypto-watcher-backend/pkg/telegram_bot_api"
@@ -20,7 +23,7 @@ func (cs *cryptoService) dailyBitcoinPriceReport(ctx context.Context, bitcoinPri
 		AssetType:  asset_const.CRYPTO,
 		AssetCode:  asset_const.BTC,
 	}
-	users, err := cs.userRepo.GetUserByReportTime(ctx, getUserFilter) // TODO (improvement): make it effective so it won't query every minute (chaching)
+	users, err := cs.userRepo.GetUserAndUserPreferenceByReportTime(ctx, getUserFilter) // TODO (improvement): make it effective so it won't query every minute (chaching)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":         err.Error(),
@@ -46,19 +49,45 @@ func (cs *cryptoService) dailyBitcoinPriceReport(ctx context.Context, bitcoinPri
 			logrus.Errorf("%s: User ID [%d] telegram_chat_id is null", funcName, user.Id)
 			continue
 		}
-		go cs.sendTelegramMessage(*user.TelegramChatId, &message)
+		go cs.sendTelegramMessage(ctx, user, &message)
 	}
 }
 
-func (cs *cryptoService) sendTelegramMessage(chatId int64, message telegram_bot_api.Message) {
+func (cs *cryptoService) sendTelegramMessage(ctx context.Context, user helper.UserAndUserPreference, message telegram_bot_api.Message) {
 	const funcName = "[internal][service]sendTelegramMessage"
-	err := cs.telegramBot.SendTelegramMessageByMessageId(chatId, message.Message())
+
+	msg := message.Message()
+	pvdr := notification_const.TelegramBotAPI
+
+	err := cs.telegramBot.SendTelegramMessageByMessageId(*user.TelegramChatId, msg)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":     err.Error(),
-			"message": message.Message(),
-			"chat_id": chatId,
+			"message": msg,
+			"chat_id": user.TelegramChatId,
 		}).Errorf("%s: Error Sending Message via Telegram", funcName)
 	}
-	// TODO: insert to notifications table
+
+	status := notification_const.SENT
+	if err != nil {
+		status = notification_const.FAILED
+	}
+
+	notif := entity.Notification{
+		UserId:       user.Id,
+		PreferenceId: user.PreferenceId,
+		Status:       status,
+		Parameters: entity.Parameters{
+			Message:  &msg,
+			Provider: &pvdr,
+		},
+	}
+	err = cs.notifRepo.InsertNotification(ctx, notif)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err":   err.Error(),
+			"user":  user,
+			"notif": notif,
+		}).Errorf("%s: Error Inserting Notification to DB", funcName)
+	}
 }
