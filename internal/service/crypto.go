@@ -57,6 +57,8 @@ func NewCryptoService(param CryptoServiceParam) CryptoService {
 func (cs *cryptoService) CryptoWatcher(ctx context.Context) error {
 	const funcName = "[internal][service]CryptoWatcher"
 
+	// TODO: get based on unique user_preference to watch add on crypto_db.go
+
 	bitcoinPriceUSD, err := cs.fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx, asset_const.BTC)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{

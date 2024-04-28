@@ -76,7 +76,7 @@ func (cs *cryptoService) sendTelegramMessage(ctx context.Context, user helper.Us
 		UserId:       user.Id,
 		PreferenceId: user.PreferenceId,
 		Status:       status,
-		Parameters: entity.Parameters{
+		Metadata: &entity.Metadata{
 			Message:  &msg,
 			Provider: &pvdr,
 		},

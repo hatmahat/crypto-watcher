@@ -37,8 +37,10 @@ SELECT
     updated_at,
     user_id,
     preference_type,
+    operator,
     asset_type,
     asset_code,
+    price_checkpoint,
     threshold_percentage,
     observation_period,
     report_time,
@@ -52,7 +54,7 @@ SELECT
     user_id,
     preference_id,
     status,
-    parameters
+    metadata
 FROM
     notifications;
 

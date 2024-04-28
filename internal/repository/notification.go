@@ -26,7 +26,7 @@ type (
 )
 
 const (
-	insertNotificationQuery = `INSERT INTO notifications(user_id, preference_id, status, parameters) VALUES ($1, $2, $3, $4)`
+	insertNotificationQuery = `INSERT INTO notifications(user_id, preference_id, status, metadata) VALUES ($1, $2, $3, $4)`
 )
 
 func NewNotificationRepo(param NotificationRepoParam) NotificationRepo {
@@ -38,7 +38,7 @@ func NewNotificationRepo(param NotificationRepoParam) NotificationRepo {
 func (nr *notificationRepo) InsertNotification(ctx context.Context, notification entity.Notification) error {
 	const funcName = "[internal][repository]InsertNotification"
 
-	parametersJSON, err := json.Marshal(notification.Parameters)
+	parametersJSON, err := json.Marshal(notification.Metadata)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":          err.Error(),

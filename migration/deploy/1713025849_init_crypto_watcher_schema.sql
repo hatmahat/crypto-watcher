@@ -36,10 +36,12 @@ CREATE TABLE user_preferences (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     user_id INTEGER REFERENCES users(id) NOT NULL,
     preference_type VARCHAR(50) NOT NULL, -- 'daily_report', 'weekly_report', 'price_alert', etc
+    operator VARCHAR(20), -- '>,<', '+,-'. '+%,-%'
     asset_type VARCHAR(50) NOT NULL, -- 'CRYPTO' or 'STOCK'
     asset_code VARCHAR(50) NOT NULL, -- such as 'BTC', 'ETH' for cryptos or 'AAPL', 'GOOGL' for stocks
+    price_checkpoint DECIMAL(18, 4),
     threshold_percentage DECIMAL(5, 2),
-    observation_period INTEGER NOT NULL, -- This is in minutes
+    observation_period INTEGER, -- This is in minutes
     report_time TIME WITHOUT TIME ZONE DEFAULT NULL,
     is_active boolean NOT NULL DEFAULT false
 );
@@ -50,7 +52,7 @@ CREATE TABLE notifications (
     user_id INTEGER REFERENCES users(id) NOT NULL,
     preference_id INTEGER REFERENCES user_preferences(id) NOT NULL, -- Reference to user preferences
     status VARCHAR(50) NOT NULL, -- Notification status
-    parameters JSONB DEFAULT '{}'
+    metadata JSONB DEFAULT '{}'
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_uuid ON users USING btree (uuid);
