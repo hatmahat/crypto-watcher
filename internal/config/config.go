@@ -120,7 +120,7 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 	db := map[string]*Database{
 		CryptoWatcherDB: {
 			Master: dbMaster,
-			Slave:  nil, // TODO: add slave DB config here
+			Slave:  nil, // Slave DB config
 		},
 	}
 
@@ -149,12 +149,13 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 		CoinGeckoAPIHost: getStringOrPanic("COIN_GECKO_API_HOST"),
 	}
 
-	whatsAppConfig := WhatsAppConfig{
-		WhatsAppAPIHost:         getStringOrPanic("WHATSAPP_API_HOST"),
-		WhatsAppAPIKey:          getStringOrPanic("WHATSAPP_API_KEY"),
-		WhatsAppPhoneNumberId:   getStringOrPanic("WHATSAPP_PHONENUMBER_ID"),
-		WhatsAppTestPhoneNumber: getStringOrDefault("WHATSAPP_TEST_PHONENUMBER", ""),
-	}
+	// Uncomment if you already have a supported WABA
+	// whatsAppConfig := WhatsAppConfig{
+	// 	WhatsAppAPIHost:         getStringOrPanic("WHATSAPP_API_HOST"),
+	// 	WhatsAppAPIKey:          getStringOrPanic("WHATSAPP_API_KEY"),
+	// 	WhatsAppPhoneNumberId:   getStringOrPanic("WHATSAPP_PHONENUMBER_ID"),
+	// 	WhatsAppTestPhoneNumber: getStringOrDefault("WHATSAPP_TEST_PHONENUMBER", ""),
+	// }
 
 	currencyConfig := CurrencyConfig{
 		CurrencyAPIHost: getStringOrPanic("CURRENCY_API_HOST"),
@@ -171,14 +172,14 @@ func LoadConfig(configPath, fileName string) (*Config, error) {
 	}
 
 	return &Config{
-		ENV:                     env,
-		DB:                      db,
-		ServerConfig:            serverConfig,
-		WorkerConfig:            workerConfig,
-		SchedulerConfig:         schedulerConfig,
-		CoinConfig:              coinConfig,
-		CoinGeckoConfig:         coinGeckoConfig,
-		WhatsAppConfig:          whatsAppConfig,
+		ENV:             env,
+		DB:              db,
+		ServerConfig:    serverConfig,
+		WorkerConfig:    workerConfig,
+		SchedulerConfig: schedulerConfig,
+		CoinConfig:      coinConfig,
+		CoinGeckoConfig: coinGeckoConfig,
+		// WhatsAppConfig:          whatsAppConfig,
 		CurrencyConfig:          currencyConfig,
 		CurrencyConverterConfig: currencyConverterConfig,
 		TelegramConfig:          telegramConfig,
