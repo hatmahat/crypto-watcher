@@ -1,12 +1,12 @@
-start-worker: build run-worker
+start-watcher: build run-watcher
 
 build:
 	@echo ">> Building crypto-watcher..."
 	@go build --race -o ./bin/crypto-watcher ./cmd
 	@echo ">> Finished"
 
-run-worker:
-	@./bin/crypto-watcher worker
+run-watcher:
+	@./bin/crypto-watcher watcher
 
 wire:
 	@cd internal/app/init_module && go run github.com/google/wire/cmd/wire
