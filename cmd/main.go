@@ -22,8 +22,8 @@ func main() {
 
 	cmd.AddCommand(
 		&cobra.Command{
-			Use:              "worker",
-			Short:            "Worker Server",
+			Use:              "watcher",
+			Short:            "Watcher Worker Server",
 			Long:             "a worker server that will run all scheduler registered to the worker",
 			TraverseChildren: true,
 			RunE: func(cmd *cobra.Command, args []string) error {

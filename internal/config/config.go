@@ -26,52 +26,6 @@ type (
 		WhatsAppConfig
 		TelegramConfig
 	}
-
-	ServerConfig struct {
-		APIPort       int
-		GlobalTimeout int
-		APILogLevel   string
-	}
-
-	WorkerConfig struct {
-		APIPort       int
-		GlobalTimeout int
-		APILogLevel   string
-	}
-
-	SchedulerConfig struct {
-		SchedulerCryptoFetch string
-	}
-
-	CoinConfig struct {
-		CoinAPIHost string
-		CoinAPIKey  string
-	}
-
-	CoinGeckoConfig struct {
-		CoinGeckoAPIHost string
-	}
-
-	CurrencyConfig struct {
-		CurrencyAPIHost string
-		CurrencyAPIKey  string
-	}
-
-	CurrencyConverterConfig struct {
-		CurrencyConverterAPIHost string
-		CurrencyConverterAPIKey  string
-	}
-
-	WhatsAppConfig struct {
-		WhatsAppAPIHost         string
-		WhatsAppAPIKey          string
-		WhatsAppPhoneNumberId   string
-		WhatsAppTestPhoneNumber string
-	}
-
-	TelegramConfig struct {
-		TelegramBotAPIKey string
-	}
 )
 
 // LoadConfig loads the application configuration from a given path and name.
