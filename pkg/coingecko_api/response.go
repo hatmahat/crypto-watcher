@@ -1,12 +1,9 @@
 package coingecko_api
 
 type (
-	CoinGeckoPriceResponse struct {
-		Bitcoin  Currency `json:"bitcoin"`
-		Ethereum Currency `json:"ethereum"` // TODO (improvement)
-	}
+	CoinGeckoPriceResponse map[string]Currency
 
 	Currency struct {
-		USD int `json:"usd"`
+		USD float64 `json:"usd"`
 	}
 )

@@ -14,20 +14,28 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (cs *cryptoService) fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx context.Context, assetCode string) (*int, error) {
+func (cs *cryptoService) fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx context.Context, assetCodes []string) ([]entity.AssetPrice, error) {
 	const funcName = "[internal][service]fetchCryptoPriceFromCoinGeckoAPIAndStore"
 
-	coinGeckoId, err := validation.ValidateFromMapper(assetCode, asset_const.CoinGeckoMapper)
-	if err != nil {
-		logrus.Errorf("%s: Asset Code [%s] Not Found", funcName, assetCode)
-		return nil, err
+	coinGeckoIds := ""
+	for _, assetCode := range assetCodes {
+		if !validation.IsInSlice(assetCode, asset_const.AssetCodes) {
+			logrus.Errorf("%s: asset_code [%s] not found in asset_const.Coins", funcName, assetCode)
+			continue
+		}
+		coinGeckoId, err := validation.ValidateFromMapper(assetCode, asset_const.CoinGeckoMapper)
+		if err != nil {
+			logrus.Errorf("%s: Asset Code [%s] Not Found", funcName, assetCode)
+			return nil, err
+		}
+		coinGeckoIds += "," + *coinGeckoId
 	}
 
 	coinGeckoParams := map[string]string{
-		coingecko_api.Ids:          *coinGeckoId,
+		coingecko_api.Ids:          coinGeckoIds,
 		coingecko_api.VsCurrencies: coingecko_api.USD,
 	}
-	coinPrice, err := cs.coinGecko.GetCurrentPrice(ctx, coinGeckoParams)
+	coinPrices, err := cs.coinGecko.GetCurrentPrice(ctx, coinGeckoParams)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":               err.Error(),
@@ -36,21 +44,34 @@ func (cs *cryptoService) fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx context.Co
 		return nil, err
 	}
 
-	assetPrice := entity.AssetPrice{
-		AssetType: asset_const.CRYPTO,
-		AssetCode: assetCode,
-		PriceUSD:  float64(coinPrice.Bitcoin.USD), // TODO (improvement) make it based on response
-	}
-	err = cs.assetPriceRepo.InsertAssetPrice(ctx, assetPrice)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"err":         err.Error(),
-			"asset_price": assetPrice,
-		}).Errorf("%s: Error Inserting Asset Price", funcName)
-		return nil, err
-	}
+	assetPrices := make([]entity.AssetPrice, 0)
+	for coin, price := range *coinPrices {
+		if coin == "" {
+			continue
+		}
 
-	return &coinPrice.Bitcoin.USD, nil // TODO (improvement) make it based on response
+		assetCode, err := validation.ValidateFromMapper(coin, asset_const.CoinGeckoMapperToAssetCode)
+		if err != nil {
+			logrus.Errorf("%s: Asset Code [%s] Not Found", funcName, coin)
+			return nil, err
+		}
+
+		assetPrice := entity.AssetPrice{
+			AssetType: asset_const.CRYPTO,
+			AssetCode: *assetCode,
+			PriceUSD:  price.USD,
+		}
+		assetPrices = append(assetPrices, assetPrice)
+		err = cs.assetPriceRepo.InsertAssetPrice(ctx, assetPrice)
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"err":         err.Error(),
+				"asset_price": assetPrice,
+			}).Errorf("%s: Error Inserting Asset Price", funcName)
+			return nil, err
+		}
+	}
+	return assetPrices, nil
 }
 
 func (cs *cryptoService) fetchRateFromCurrencyConverterAPIAndStore(ctx context.Context, currencyCodeFrom, currencyCodeTo string) (*entity.CurrencyRate, error) {

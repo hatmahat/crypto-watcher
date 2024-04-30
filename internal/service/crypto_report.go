@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"crypto-watcher-backend/internal/config"
 	"crypto-watcher-backend/internal/constant/asset_const"
 	"crypto-watcher-backend/internal/constant/notification_const"
 	"crypto-watcher-backend/internal/constant/user_preference_const"
@@ -16,7 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func (cs *cryptoService) dailyCoinPriceReport(ctx context.Context, assetCode string, coinPriceUSD, rateUSDToIDR *int) {
+func (cs *cryptoService) dailyCoinPriceReport(ctx context.Context, assetCode string, coinPriceUSD float64, rateUSDToIDR int) {
 	const funcName = "[internal][service]dailyCoinPriceReport"
 
 	getUserFilter := repository.GetUserFilter{
@@ -34,12 +35,15 @@ func (cs *cryptoService) dailyCoinPriceReport(ctx context.Context, assetCode str
 		return
 	}
 
-	usdPrice := format.ThousandSepartor(int64(*coinPriceUSD), ',')
-	idrPrice := format.ThousandSepartor(int64(*coinPriceUSD*(*rateUSDToIDR)), '.')
-	fmt.Printf("USD %s\nIDR %s\n", usdPrice, idrPrice)
+	usdPrice := format.ThousandSepartor(int64(coinPriceUSD), ',')
+	idrPrice := format.ThousandSepartor(int64(coinPriceUSD*float64(rateUSDToIDR)), '.')
+
+	if config.DebugMode {
+		fmt.Printf("USD %s\nIDR %s\n", usdPrice, idrPrice)
+	}
 
 	var coinName string
-	coinNameMap, err := validation.ValidateFromMapper(assetCode, asset_const.CoinNameMapper)
+	coinNameMap, err := validation.ValidateFromMapper(assetCode, asset_const.AssetCodeNameMapper)
 	if err != nil {
 		logrus.Errorf("%s: Coin Name [%s] Not Found", funcName, assetCode)
 	}

@@ -25,12 +25,17 @@ var CoinGeckoMapper = map[string]string{
 	ETH: coingecko_api.Ethereum,
 }
 
-var Coins = []string{
+var CoinGeckoMapperToAssetCode = map[string]string{
+	coingecko_api.Bitcoin:  BTC,
+	coingecko_api.Ethereum: ETH,
+}
+
+var AssetCodes = []string{
 	BTC,
 	ETH,
 }
 
-var CoinNameMapper = map[string]string{
+var AssetCodeNameMapper = map[string]string{
 	BTC: Bitcoin,
 	ETH: Ethereum,
 }

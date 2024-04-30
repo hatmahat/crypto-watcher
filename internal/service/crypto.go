@@ -9,7 +9,6 @@ import (
 	"crypto-watcher-backend/pkg/coingecko_api"
 	"crypto-watcher-backend/pkg/currency_converter_api"
 	"crypto-watcher-backend/pkg/telegram_bot_api"
-	"crypto-watcher-backend/pkg/validation"
 
 	"github.com/sirupsen/logrus"
 )
@@ -61,7 +60,7 @@ func NewCryptoService(param CryptoServiceParam) CryptoService {
 func (cs *cryptoService) CryptoWatcher(ctx context.Context) error {
 	const funcName = "[internal][service]CryptoWatcher"
 
-	coins, err := cs.userPreferenceRepo.GetDistinctUserPreferenceAssetCodeByAssetType(ctx, asset_const.CRYPTO)
+	assetCodes, err := cs.userPreferenceRepo.GetDistinctUserPreferenceAssetCodeByAssetType(ctx, asset_const.CRYPTO)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err.Error(),
@@ -78,19 +77,16 @@ func (cs *cryptoService) CryptoWatcher(ctx context.Context) error {
 		return err
 	}
 
-	for _, coin := range coins {
-		if !validation.IsInSlice(coin, asset_const.Coins) {
-			logrus.Errorf("%s: asset_code [%s] not found in asset_const.Coins", funcName, coin)
-			continue
-		}
-		coinPriceUSD, err := cs.fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx, coin) // TODO (improvement) fetch it once using coin gecko
-		if err != nil {
-			logrus.WithFields(logrus.Fields{
-				"err": err.Error(),
-			}).Errorf("%s: Error Fetching & Storing Bitcoin Price", funcName)
-			return err
-		}
-		go cs.dailyCoinPriceReport(ctx, coin, coinPriceUSD, rateUSDToIDR)
+	assetPrices, err := cs.fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx, assetCodes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err.Error(),
+		}).Errorf("%s: Error Fetching & Storing Bitcoin Price", funcName)
+		return err
+	}
+
+	for _, assetPrice := range assetPrices {
+		go cs.dailyCoinPriceReport(ctx, assetPrice.AssetCode, assetPrice.PriceUSD, *rateUSDToIDR)
 	}
 
 	return nil
