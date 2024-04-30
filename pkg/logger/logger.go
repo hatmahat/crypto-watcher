@@ -16,10 +16,16 @@ func MiddlewareLogging(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func LogWithCustomTime(message string) {
+func LogInfoWithCustomTime(message string) {
 	logrus.WithFields(logrus.Fields{
 		"at": time.Now().Format("2006-01-02 15:04:05"),
 	}).Info(message)
+}
+
+func LogDebugWithCustomTime(message string) {
+	logrus.WithFields(logrus.Fields{
+		"at": time.Now().Format("2006-01-02 15:04:05"),
+	}).Debug(message)
 }
 
 func makeLogEntry(c echo.Context, start time.Time, err error, message string) {

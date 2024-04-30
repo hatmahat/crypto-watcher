@@ -12,7 +12,6 @@ import (
 	"crypto-watcher-backend/pkg/format"
 	"crypto-watcher-backend/pkg/telegram_bot_api"
 	"crypto-watcher-backend/pkg/validation"
-	"fmt"
 
 	"github.com/sirupsen/logrus"
 )
@@ -39,7 +38,7 @@ func (cs *cryptoService) dailyCoinPriceReport(ctx context.Context, assetCode str
 	idrPrice := format.ThousandSepartor(int64(coinPriceUSD*float64(rateUSDToIDR)), '.')
 
 	if config.DebugMode {
-		fmt.Printf("USD %s\nIDR %s\n", usdPrice, idrPrice)
+		logrus.Infof("Asset Code (%s):\nUSD %s\nIDR %s\n", assetCode, usdPrice, idrPrice)
 	}
 
 	var coinName string
