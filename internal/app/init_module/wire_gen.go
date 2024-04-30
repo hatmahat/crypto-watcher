@@ -40,15 +40,20 @@ func NewWorker(ctx context.Context, cfg *config.Config, httpClient *http.Client)
 		DB: v2,
 	}
 	notificationRepo := repository.NewNotificationRepo(notificationRepoParam)
+	userPreferenceRepoParam := repository.UserPreferenceRepoParam{
+		DB: v2,
+	}
+	userPreferenceRepo := repository.NewUserPreferenceRepo(userPreferenceRepoParam)
 	cryptoServiceParam := service.CryptoServiceParam{
-		Cfg:               cfg,
-		CoinGecko:         coinGecko,
-		CurrencyConverter: currencyConverter,
-		TelegramBot:       telegramBot,
-		CurrencyRateRepo:  currencyRateRepo,
-		AssetPriceRepo:    assetPriceRepo,
-		UserRepo:          userRepo,
-		NotifRepo:         notificationRepo,
+		Cfg:                cfg,
+		CoinGecko:          coinGecko,
+		CurrencyConverter:  currencyConverter,
+		TelegramBot:        telegramBot,
+		CurrencyRateRepo:   currencyRateRepo,
+		AssetPriceRepo:     assetPriceRepo,
+		UserRepo:           userRepo,
+		NotifRepo:          notificationRepo,
+		UserPreferenceRepo: userPreferenceRepo,
 	}
 	cryptoService := service.NewCryptoService(cryptoServiceParam)
 	watcherWorkerParam := worker.WatcherWorkerParam{
@@ -75,7 +80,7 @@ var (
 		NewTelegramBot,
 	)
 
-	repoSet = wire.NewSet(repository.NewCurrencyRateRepo, wire.Struct(new(repository.CurrencyRateRepoParam), "*"), repository.NewAssetPriceRepo, wire.Struct(new(repository.AssetPriceRepoParam), "*"), repository.NewUserRepo, wire.Struct(new(repository.UserRepoParam), "*"), repository.NewNotificationRepo, wire.Struct(new(repository.NotificationRepoParam), "*"))
+	repoSet = wire.NewSet(repository.NewCurrencyRateRepo, wire.Struct(new(repository.CurrencyRateRepoParam), "*"), repository.NewAssetPriceRepo, wire.Struct(new(repository.AssetPriceRepoParam), "*"), repository.NewUserRepo, wire.Struct(new(repository.UserRepoParam), "*"), repository.NewNotificationRepo, wire.Struct(new(repository.NotificationRepoParam), "*"), repository.NewUserPreferenceRepo, wire.Struct(new(repository.UserPreferenceRepoParam), "*"))
 
 	serviceSet = wire.NewSet(service.NewCryptoService, wire.Struct(new(service.CryptoServiceParam), "*"))
 

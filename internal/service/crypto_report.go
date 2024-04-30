@@ -10,19 +10,19 @@ import (
 	"crypto-watcher-backend/internal/repository"
 	"crypto-watcher-backend/pkg/format"
 	"crypto-watcher-backend/pkg/telegram_bot_api"
+	"crypto-watcher-backend/pkg/validation"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
 )
 
-func (cs *cryptoService) dailyBitcoinPriceReport(ctx context.Context, bitcoinPriceUSD, rateUSDToIDR *int) {
-	const funcName = "[internal][service]DailyBitcoinPriceReport"
+func (cs *cryptoService) dailyCoinPriceReport(ctx context.Context, assetCode string, coinPriceUSD, rateUSDToIDR *int) {
+	const funcName = "[internal][service]dailyCoinPriceReport"
 
-	// TODO (improvement): not only support bitcoin, get it from user preference
 	getUserFilter := repository.GetUserFilter{
 		ReportTime:     format.GetSimpleTime(),
 		AssetType:      asset_const.CRYPTO,
-		AssetCode:      asset_const.BTC,
+		AssetCode:      assetCode,
 		PreferenceType: user_preference_const.DailyReport,
 	}
 	users, err := cs.userRepo.GetUserAndUserPreferenceByReportTime(ctx, getUserFilter) // TODO (improvement): make it effective so it won't query every minute (chaching)
@@ -34,11 +34,23 @@ func (cs *cryptoService) dailyBitcoinPriceReport(ctx context.Context, bitcoinPri
 		return
 	}
 
-	usdPrice := format.ThousandSepartor(int64(*bitcoinPriceUSD), ',')
-	idrPrice := format.ThousandSepartor(int64(*bitcoinPriceUSD*(*rateUSDToIDR)), '.')
+	usdPrice := format.ThousandSepartor(int64(*coinPriceUSD), ',')
+	idrPrice := format.ThousandSepartor(int64(*coinPriceUSD*(*rateUSDToIDR)), '.')
 	fmt.Printf("USD %s\nIDR %s\n", usdPrice, idrPrice)
 
-	message := telegram_bot_api.BitcoinPriceAlertSimple{
+	var coinName string
+	coinNameMap, err := validation.ValidateFromMapper(assetCode, asset_const.CoinNameMapper)
+	if err != nil {
+		logrus.Errorf("%s: Coin Name [%s] Not Found", funcName, assetCode)
+	}
+
+	if coinNameMap != nil {
+		coinName = *coinNameMap
+	}
+
+	message := telegram_bot_api.CoinPriceAlertSimple{
+		CoinName:          coinName,
+		CoinCode:          assetCode,
 		CurrentPriceUSD:   usdPrice,
 		CurrentPriceIDR:   idrPrice,
 		FormattedDateTime: format.GetFormattedDateTimeWithDay(),

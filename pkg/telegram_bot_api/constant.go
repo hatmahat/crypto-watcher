@@ -21,10 +21,10 @@ const (
 	<b>%s</b>
 	`
 
-	bitcoin_price_alert_simple_template = `
-	<b>🚨 Bitcoin Price Alert</b>
+	coin_price_alert_simple_template = `
+	<b>🚨 %s (%s) Price Alert</b>
 	
-	Trigger: <b>Bitcoin</b> daily update
+	Trigger: <b>%s</b> daily update
 			
 	<b>Current Price:</b> 
 	- USD: <b>$%s</b>

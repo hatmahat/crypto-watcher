@@ -27,7 +27,7 @@ func (cs *cryptoService) fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx context.Co
 		coingecko_api.Ids:          *coinGeckoId,
 		coingecko_api.VsCurrencies: coingecko_api.USD,
 	}
-	bitcoinPrice, err := cs.coinGecko.GetCurrentPrice(ctx, coinGeckoParams)
+	coinPrice, err := cs.coinGecko.GetCurrentPrice(ctx, coinGeckoParams)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":               err.Error(),
@@ -39,7 +39,7 @@ func (cs *cryptoService) fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx context.Co
 	assetPrice := entity.AssetPrice{
 		AssetType: asset_const.CRYPTO,
 		AssetCode: assetCode,
-		PriceUSD:  float64(bitcoinPrice.Bitcoin.USD),
+		PriceUSD:  float64(coinPrice.Bitcoin.USD), // TODO (improvement) make it based on response
 	}
 	err = cs.assetPriceRepo.InsertAssetPrice(ctx, assetPrice)
 	if err != nil {
@@ -50,7 +50,7 @@ func (cs *cryptoService) fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx context.Co
 		return nil, err
 	}
 
-	return &bitcoinPrice.Bitcoin.USD, nil
+	return &coinPrice.Bitcoin.USD, nil // TODO (improvement) make it based on response
 }
 
 func (cs *cryptoService) fetchRateFromCurrencyConverterAPIAndStore(ctx context.Context, currencyCodeFrom, currencyCodeTo string) (*entity.CurrencyRate, error) {

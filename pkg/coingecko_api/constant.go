@@ -9,6 +9,10 @@ const (
 	VsCurrencies = "vs_currencies"
 
 	// Query Parameter Values
-	Bitcoin = "bitcoin"
-	USD     = "usd"
+	// Coins
+	Bitcoin  = "bitcoin"
+	Ethereum = "ethereum"
+
+	// Currencies
+	USD = "usd"
 )
