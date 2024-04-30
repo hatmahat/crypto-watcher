@@ -42,10 +42,10 @@ func RunWorker(httpServer *http.Server, cfg *config.Config) {
 			logrus.Fatalf("listen: %s\n", err)
 		}
 	}()
-	logger.LogWithCustomTime("Server Started")
+	logger.LogInfoWithCustomTime("Server Started")
 
 	<-done
-	logger.LogWithCustomTime("Worker Stopped")
+	logger.LogInfoWithCustomTime("Worker Stopped")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer func() {
@@ -56,5 +56,5 @@ func RunWorker(httpServer *http.Server, cfg *config.Config) {
 	if err != nil {
 		logrus.Error(fmt.Sprintf("Server Shutdown Failed: %+v", err))
 	}
-	logger.LogWithCustomTime("Worker Exited")
+	logger.LogInfoWithCustomTime("Worker Exited")
 }

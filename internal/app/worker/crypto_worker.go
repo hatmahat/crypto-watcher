@@ -42,7 +42,7 @@ func (cw *CryptoWorker) GenerateWorkerParameters() []JobParameter {
 func (cw *CryptoWorker) CryptoWatcher(ctx context.Context) {
 	const funcName = "[internal][app][worker]CryptoWatcher"
 	if config.DebugMode {
-		logger.LogWithCustomTime(">>Running<< Crypto Watcher Service")
+		logger.LogInfoWithCustomTime(">>Running<< Crypto Watcher Service")
 	}
 	err := cw.cryptoService.CryptoWatcher(ctx)
 	if err != nil {
@@ -51,6 +51,6 @@ func (cw *CryptoWorker) CryptoWatcher(ctx context.Context) {
 		}).Errorf("%s: Error", funcName)
 	}
 	if config.DebugMode {
-		logger.LogWithCustomTime("<<Stopped>> Crypto Watcher Service ")
+		logger.LogInfoWithCustomTime("<<Stopped>> Crypto Watcher Service ")
 	}
 }
