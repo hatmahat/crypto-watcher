@@ -16,7 +16,9 @@ type (
 		FormattedDateTime  string
 	}
 
-	BitcoinPriceAlertSimple struct {
+	CoinPriceAlertSimple struct {
+		CoinName          string
+		CoinCode          string
 		CurrentPriceUSD   string
 		CurrentPriceIDR   string
 		FormattedDateTime string
@@ -35,9 +37,12 @@ func (b *BitcoinPriceAlert) Message() string {
 	)
 }
 
-func (b *BitcoinPriceAlertSimple) Message() string {
+func (b *CoinPriceAlertSimple) Message() string {
 	return fmt.Sprintf(
-		bitcoin_price_alert_simple_template,
+		coin_price_alert_simple_template,
+		b.CoinCode,
+		b.CoinName,
+		b.CoinCode,
 		b.CurrentPriceUSD,
 		b.CurrentPriceIDR,
 		b.FormattedDateTime,

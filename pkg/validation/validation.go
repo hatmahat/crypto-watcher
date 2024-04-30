@@ -16,3 +16,12 @@ func ValidateFromMapper(key string, mapper map[string]string) (*string, error) {
 	}
 	return &value, nil
 }
+
+func IsInSlice(target string, list []string) bool {
+	for _, item := range list {
+		if target == item {
+			return true
+		}
+	}
+	return false
+}
