@@ -62,7 +62,7 @@ func (cs *cryptoService) CryptoWatcher(ctx context.Context) error {
 
 	assetCodes, err := cs.userPreferenceRepo.GetDistinctUserPreferenceAssetCodeByAssetType(ctx, asset_const.CRYPTO)
 	if err != nil {
-		logrus.WithFields(logrus.Fields{
+		logrus.WithFields(logrus.Fields{ // TODO (improvement): need to fix all log only once, and filepath
 			"err": err.Error(),
 		}).Errorf("%s: Error Getting Distinct Coin from user_preference", funcName)
 		return err
