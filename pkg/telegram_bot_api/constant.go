@@ -32,4 +32,11 @@ const (
 
 	<b>%s</b>
 	`
+
+	coin_price_alert_super_simple_template = `
+	<b>🚨 %s Daily Alert</b>
+	<b>%s</b> = %s USD
+	<b>%s</b> = %s IDR
+	<b>%s</b>
+	`
 )
