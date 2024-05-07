@@ -11,7 +11,6 @@ import (
 	"crypto-watcher-backend/internal/repository"
 	"crypto-watcher-backend/pkg/format"
 	"crypto-watcher-backend/pkg/telegram_bot_api"
-	"crypto-watcher-backend/pkg/validation"
 
 	"github.com/sirupsen/logrus"
 )
@@ -41,18 +40,17 @@ func (cs *cryptoService) dailyCoinPriceReport(ctx context.Context, assetCode str
 		logrus.Infof("Asset Code (%s):\nUSD %s\nIDR %s\n", assetCode, usdPrice, idrPrice)
 	}
 
-	var coinName string
-	coinNameMap, err := validation.ValidateFromMapper(assetCode, asset_const.AssetCodeNameMapper)
-	if err != nil {
-		logrus.Errorf("%s: Coin Name [%s] Not Found", funcName, assetCode)
-	}
+	//var coinName string
+	// coinNameMap, err := validation.ValidateFromMapper(assetCode, asset_const.AssetCodeNameMapper)
+	// if err != nil {
+	// 	logrus.Errorf("%s: Coin Name [%s] Not Found", funcName, assetCode)
+	// }
 
-	if coinNameMap != nil {
-		coinName = *coinNameMap
-	}
+	// if coinNameMap != nil {
+	// 	coinName = *coinNameMap
+	// }
 
-	message := telegram_bot_api.CoinPriceAlertSimple{
-		CoinName:          coinName,
+	message := telegram_bot_api.CoinPriceAlertSuperSimple{
 		CoinCode:          assetCode,
 		CurrentPriceUSD:   usdPrice,
 		CurrentPriceIDR:   idrPrice,
