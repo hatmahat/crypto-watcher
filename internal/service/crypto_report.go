@@ -61,6 +61,7 @@ func (cs *cryptoService) dailyCoinPriceReport(ctx context.Context, assetCode str
 			logrus.Errorf("%s: User ID [%d] telegram_chat_id is null", funcName, user.Id)
 			continue
 		}
+		// TODO: Send telegram via jobs?
 		go cs.sendTelegramMessage(ctx, user, &message)
 	}
 }
