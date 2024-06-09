@@ -86,6 +86,7 @@ func (cs *cryptoService) CryptoWatcher(ctx context.Context) error {
 	}
 
 	for _, assetPrice := range assetPrices {
+		// TODO: report using jobs
 		go cs.dailyCoinPriceReport(ctx, assetPrice.AssetCode, assetPrice.PriceUSD, *rateUSDToIDR)
 	}
 
