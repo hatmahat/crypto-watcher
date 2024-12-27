@@ -7,10 +7,11 @@ Crypto Watcher is a dynamic monitoring & alerting system designed to track your 
 - **Report Cryptocurrencies**: Generate detailed reports on cryptocurrency metrics, providing insights into historical performance and current status.
 - **Send Notifications via Telegram**: Leverage Telegram to send instant alerts about critical price changes based on user preferences.
 
+## Architecture
+
+![system design diagram](documentation/system-design.png)
+
 ## Database ERD
 
 ![erd diagram](documentation/ERD.png)
 [DBDiagram](https://dbdiagram.io/d/661ab47403593b6b61e97fb8)
-
-## Architecture
-![system design diagram](documentation/system-design.png)
