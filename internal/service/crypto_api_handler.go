@@ -14,6 +14,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// fetchCryptoPriceFromCoinGeckoAPIAndStore fetches the current prices of specified cryptocurrencies
+// from the CoinGecko API and stores them in the asset price repository. It validates the asset codes
+// before fetching the prices and maps them to their respective CoinGecko IDs.
+//
+// Parameters:
+//   - ctx: The context for controlling the request lifetime.
+//   - assetCodes: A slice of strings representing the asset codes of cryptocurrencies to fetch.
+//
+// Returns:
+//   - A slice of AssetPrice entities containing the asset type, code, and price in USD.
+//   - An error if any issues occur during validation, API calls, or database insertion.
 func (cs *cryptoService) fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx context.Context, assetCodes []string) ([]entity.AssetPrice, error) {
 	const funcName = "[internal][service]fetchCryptoPriceFromCoinGeckoAPIAndStore"
 
@@ -74,6 +85,18 @@ func (cs *cryptoService) fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx context.Co
 	return assetPrices, nil
 }
 
+// fetchRateFromCurrencyConverterAPIAndStore fetches the exchange rate for a specified currency pair
+// from a currency converter API and stores it in the currency rate repository. It validates the
+// currency codes before fetching the rate.
+//
+// Parameters:
+//   - ctx: The context for controlling the request lifetime.
+//   - currencyCodeFrom: The source currency code (e.g., "USD").
+//   - currencyCodeTo: The target currency code (e.g., "EUR").
+//
+// Returns:
+//   - A pointer to a CurrencyRate entity containing the exchange rate and currency pair.
+//   - An error if any issues occur during validation, API calls, or database insertion.
 func (cs *cryptoService) fetchRateFromCurrencyConverterAPIAndStore(ctx context.Context, currencyCodeFrom, currencyCodeTo string) (*entity.CurrencyRate, error) {
 	const funcName = "[internal][service]fetchRateFromCurrencyConverterAPIAndStore"
 

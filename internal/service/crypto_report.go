@@ -66,6 +66,12 @@ func (cs *cryptoService) dailyCoinPriceReport(ctx context.Context, assetCode str
 	}
 }
 
+// sendTelegramMessage sends a message to a user via Telegram and logs the notification status in the database.
+//
+// Parameters:
+//   - ctx: The context for controlling the request lifetime.
+//   - user: A UserAndUserPreference struct containing the user's ID, preference ID, and Telegram chat ID.
+//   - message: A Message struct representing the message to be sent via Telegram.
 func (cs *cryptoService) sendTelegramMessage(ctx context.Context, user helper.UserAndUserPreference, message telegram_bot_api.Message) {
 	const funcName = "[internal][service]sendTelegramMessage"
 

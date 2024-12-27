@@ -9,6 +9,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// convertCurrencyFromUSD converts a given currency from USD to the specified currency code.
+// It first attempts to retrieve the currency rate from the database. If the rate is not found,
+// it fetches the rate from an external currency converter API and stores it in the database.
+//
+// Parameters:
+//   - ctx: The context for controlling the request lifetime.
+//   - currencyCode: The target currency code to which USD should be converted.
+//
+// Returns:
+//   - A pointer to the converted rate as an integer.
+//   - An error if any issues occur during the conversion process or data retrieval.
 func (cs cryptoService) convertCurrencyFromUSD(ctx context.Context, currencyCode string) (*int, error) {
 	const funcName = "[internal][service]convertCurrencyFromUSD"
 

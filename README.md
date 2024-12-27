@@ -9,5 +9,8 @@ Crypto Watcher is a dynamic monitoring & alerting system designed to track your 
 
 ## Database ERD
 
-![alt text](documentation/ERD.png)
+![erd diagram](documentation/ERD.png)
 [DBDiagram](https://dbdiagram.io/d/661ab47403593b6b61e97fb8)
+
+## Architecture
+![system design diagram](documentation/system-design.png)
