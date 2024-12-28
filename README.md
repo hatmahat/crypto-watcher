@@ -26,9 +26,9 @@ sequenceDiagram
     CRYPTO_WATCHER_DB-->>CRYPTO_WATCHER: Return asset codes
 
     CRYPTO_WATCHER->>CRYPTO_WATCHER_DB: Get today's date currency rate
-    alt if current date currency rate exist
+    alt if today's date currency rate exist
     CRYPTO_WATCHER_DB-->>CRYPTO_WATCHER: Return today's date currency rate
-    else if today currency rate does not exist
+    else if today's currency rate does not exist
     CRYPTO_WATCHER_DB-->>CRYPTO_WATCHER: Return no rows
     CRYPTO_WATCHER->>CURRENCY_CONVERTER_API: Get currency rate
     CURRENCY_CONVERTER_API-->>CRYPTO_WATCHER: Return currency rate
