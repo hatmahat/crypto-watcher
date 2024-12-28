@@ -11,10 +11,6 @@ Crypto Watcher is a dynamic monitoring & alerting system designed to track your 
 ![system design diagram](documentation/system-design.png)
 [Cost Estimate Summary](https://cloud.google.com/products/calculator/estimate-preview/CiRhM2E1MzBjMi0wODI4LTQ1MjEtOTU1NC03Y2QzNjE2ZmRjOTUQAQ%3D%3D)
 
-## Database ERD
-![erd diagram](documentation/ERD.png)  
-[DBDiagram](https://dbdiagram.io/d/661ab47403593b6b61e97fb8)
-
 ## Sequence Diagram
 ```mermaid
 sequenceDiagram
@@ -58,4 +54,8 @@ sequenceDiagram
         CRYPTO_WATCHER->>CRYPTO_WATCHER_DB: Insert notification FAILED
         end
     end
-```
+```  
+
+## Database ERD
+![erd diagram](documentation/ERD.png)  
+[DBDiagram](https://dbdiagram.io/d/661ab47403593b6b61e97fb8)
