@@ -56,7 +56,7 @@ func (cs *cryptoService) fetchCryptoPriceFromCoinGeckoAPIAndStore(ctx context.Co
 	}
 
 	assetPrices := make([]entity.AssetPrice, 0)
-	for coin, price := range *coinPrices {
+	for coin, price := range *coinPrices { // TODO: change to bulk insertion
 		if coin == "" {
 			continue
 		}
