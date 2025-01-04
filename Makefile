@@ -1,5 +1,7 @@
 start-watcher: build run-watcher
 
+start-nohup-watcher: build run-nohup-watcher
+
 build:
 	@echo ">> Building crypto-watcher..."
 	@go build --race -o ./bin/crypto-watcher ./cmd
@@ -7,6 +9,13 @@ build:
 
 run-watcher:
 	@./bin/crypto-watcher watcher
+
+run-nohup-watcher:
+	@nohup ./bin/crypto-watcher watcher > app.log 2>&1 &
+	@echo "Watcher started in the background. Logs: app.log"
+
+stop-nohup-watcher:
+	@pkill -f './bin/crypto-watcher watcher' || echo "No watcher process found"
 
 wire:
 	@cd internal/app/init_module && go run github.com/google/wire/cmd/wire
