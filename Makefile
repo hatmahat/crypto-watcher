@@ -17,6 +17,9 @@ run-nohup-watcher:
 stop-nohup-watcher:
 	@pkill -f './bin/crypto-watcher watcher' || echo "No watcher process found"
 
+watch-log:
+	@tail -f app.log
+
 wire:
 	@cd internal/app/init_module && go run github.com/google/wire/cmd/wire
 
